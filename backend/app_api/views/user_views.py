@@ -16,12 +16,10 @@ class LoginView(APIView):
         """
         login_username = request.data.get("username", "")
         login_password = request.data.get("password", "")
-        print(login_password, login_username)
         if login_username == '' or login_password == '':
             return response_success(error=Error.USER_OR_PAWD_NULL)
         else:
             user = auth.authenticate(username=login_username, password=login_password)
-            print(user)
             if user is not None and user.is_active:
                 auth.login(request, user)  # 验证登录
                 # update the token

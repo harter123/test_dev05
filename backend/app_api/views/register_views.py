@@ -23,7 +23,7 @@ class RegisterView(APIView):
         elif password1 != password2:
             return response_success(error=Error.PAWD_ERROR)
         else:
-            user = User.objects.create_user(username=username, password=password1)
+            User.objects.create_user(username=username, password=password1)
             return response_success()
 
 

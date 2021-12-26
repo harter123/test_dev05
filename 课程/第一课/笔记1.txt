@@ -1,0 +1,56 @@
+摩登海贼，广东肇庆，在深圳工作，跟虫师是前同事了
+
+开发为主，全栈，纯粹是做开发，有时间做一点管理的事情
+技术栈 vue + django + mysql + tornado
+
+flask 
+
+django + vue 生态齐全，组件完善
+
+
+上课模式： 50分钟，10分钟休息，有问题直接提，无所谓时间
+
+
+不会讲django + vue的基础了
+目标：做一个比较简单的用例管理平台，区别于虫师接口测试平台
+参考pincode的做法
+
+1.登录模块
+2.测试库
+3.测试用例，评论
+4.测试计划，执行
+5.测试报告
+6.工作台
+7.正式部署
+
+开发环境和技术栈：
+pycharm    webstorm 
+
+需要掌握的知识：
+js, css, html, ajax, python, django(django rest framework) vue
+
+后端：沿用虫师的项目进行扩展，在虫师的项目里面fork出来
+前端我会起一个新的项目
+
+控件库：element-ui
+
+
+前端的命名规则是  驼峰式    getData
+后端的命名规则是  斜杠式    get_data
+
+
+如何解决跨域问题：
+
+https://www.cnblogs.com/skyflask/p/10675706.html
+
+ps： 中间件必须要继承这个类，否则会出问题
+from django.utils.deprecation import MiddlewareMixin 
+
+中间件，就是所有的接口都会经过的一个组件
+
+一个请求来： 
+
+login这个接口
+8000 --》 中间1，中间2， 中间3  --》 LoginView  
+
+
