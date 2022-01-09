@@ -8,6 +8,7 @@ from app_api.views.module_view import ModuleTreeView
 from app_api.views.case_view import CaseViewSet
 from app_api.views.task_view import TaskViewSet
 from app_api.views.result_view import ResultViewSet
+from app_api.views.h_test_hub.h_test_hub_view import HTestHubViewSet
 
 
 url_path = [
@@ -26,6 +27,7 @@ router = routers.SimpleRouter()
 router.register(r'v1/case', CaseViewSet)  # 用例管理
 router.register(r'v1/task', TaskViewSet)  # 任务管理
 router.register(r'v1/result', ResultViewSet)  # 结果管理
+router.register(r'v1/testhub', HTestHubViewSet)  # 测试库管理
 
 urlpatterns = url_path + router.urls
 

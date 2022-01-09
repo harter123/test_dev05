@@ -35,6 +35,10 @@ class Error:
     RESULT_ID_NULL = {"10061", "task ID不存在"}
     RESULT_OBJECT_NULL = {"10061": "通过id查询任务不存在"}
 
+    TESTHUB_ID_NULL = {"10070": "测试库id不存在"}
+    TESTHUB_OBJECT_NULL = {"10071": "测试库对象不存在"}
+    TESTHUB_DELETE_ERROR = {"10072": "测试库删除失败"}
+
 
 def response_fail(error=""):
     """

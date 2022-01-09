@@ -1,0 +1,58 @@
+大纲：
+1.重整前端首页
+2.实现测试库模块的增删改查
+
+
+制定一个规则：所有的编辑，必须要是全量编辑
+
+ModelViewSet 封装程度更加高的一个类
+只要继承与这个函数，然后下面的几个url和方法
+    def create(self, request, *args, **kwargs):
+        """
+        post - v1/testhub  创建测试库
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        pass
+
+    def update(self, request, *args, **kwargs):
+        """
+        put - v1/testhub/<pk>/  编辑测试库
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        pass
+
+    def list(self, request, *args, **kwargs):
+        """
+        get - v1/testhub/ 获取测试库列表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        pass
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        delete - v1/testhub/<pk> 删除测试库
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        pass
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        get - v1/testhub/<pk> 获取单个测试库
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        pass

@@ -7,6 +7,7 @@ import Module from '../components/module/Module.vue'
 import CaseList from '../components/case/CaseList.vue'
 import Task from '../components/task/Task.vue'
 import ReportList from '../components/report/ReportList.vue'
+import HTestHubList from '../components/testhub/hTesthub/HTestHubList'
 
 
 Vue.use(VueRouter)
@@ -47,6 +48,10 @@ const routes = [
       {
         path: 'report',
         component: ReportList
+      },
+      {
+        path: 'testhub',
+        component: HTestHubList
       }
     ]
   },

@@ -1,6 +1,6 @@
 import json
 from rest_framework.views import APIView
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
 from app_common.utils.response import Error
 
@@ -71,6 +71,15 @@ class BaseAPIView(APIView, BaseView, Error):
 class BaseViewSet(ViewSet, BaseView, Error):
     """
     继承ViewSet，
+    Response：自定义返回格式
+    Error: 自定义错误信息
+    """
+    pass
+
+
+class ModelBaseViewSet(ModelViewSet, BaseView, Error):
+    """
+    继承ModelViewSet，
     Response：自定义返回格式
     Error: 自定义错误信息
     """
