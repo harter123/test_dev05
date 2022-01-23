@@ -1,8 +1,10 @@
 import json
+from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
 from app_common.utils.response import Error
+from rest_framework.authtoken.models import Token
 
 
 class BaseView:
@@ -58,6 +60,23 @@ class BaseView:
             return None
         return ret
 
+    def get_user(self, request):
+        # 1. 在请求头的query_params中获取token
+        # token = request.query_params.get('token')
+
+        # 2. 直接在请求头中获取token
+
+        # 3.直接获取uer
+        header_token = request.META.get("HTTP_TOKEN", "")
+
+        if header_token == "":
+            raise exceptions.AuthenticationFailed("token为空")
+
+        token = Token.objects.filter(key=header_token).first()
+        if not token:
+            raise exceptions.AuthenticationFailed("token认证失败")
+
+        return token.user
 
 class BaseAPIView(APIView, BaseView, Error):
     """

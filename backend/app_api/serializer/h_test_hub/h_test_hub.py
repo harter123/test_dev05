@@ -26,14 +26,23 @@ class HTestHubValidator(serializers.Serializer):
                                  error_messages={"required": "flag不能为空",
                                                  "invalid": "类型不对",
                                                  "max_length": "长度不能大于20"})
-    create_id = serializers.IntegerField(required=True)
+    creator_id = serializers.IntegerField(required=True)
     describe = serializers.CharField(required=False)
     h_test_plan_num = serializers.IntegerField(required=False)
 
     def create(self, validated_data):
         """
         创建
+        validated_data 经过校验的字典数据
+        {
+        "name": "xxx",
+        "flag": "xxx",
+        "creator_id": 1,
+        "describe": "",
+        "h_test_plan_num": 2
+        }
         """
+        # ** 等于是把字典平铺开来，例如 a = {"a1"：1，”b1“: 2},平铺开来九食 a1=1,b1=2
         test_hub = HTestHub.objects.create(**validated_data)
         return test_hub
 
@@ -44,10 +53,14 @@ class HTestHubValidator(serializers.Serializer):
         validated_data - 更新的数据
         """
         instance.name = validated_data.get("name", instance.name)
+        #if validated_data.get("name"): 两种写法 等效的
+        #    instance.name = validated_data.get("name")
+
         instance.describe = validated_data.get("describe", instance.describe)
         instance.h_test_plan_num = validated_data.get("h_test_plan_num", instance.h_test_plan_num)
         instance.flag = validated_data.get("flag", instance.flag)
-        instance.creator_id = validated_data.get("creator_id", instance.creator_id)
+        #不能编辑创建者
+        #instance.creator_id = validated_data.get("creator_id", instance.creator_id)
         instance.save()
         return instance
 

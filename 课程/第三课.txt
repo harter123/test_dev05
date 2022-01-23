@@ -1,0 +1,9 @@
+
+
+test_hub = HTestHub.objects.filter(id=pk).first()
+        
+HTestHub.objects.get(id=pk)
+
+两种写法效果是一样的
+不过第一种不会抛出异常
+第二种，如果数据不存在，会抛出数据不存在的异常，必须要捕捉异常

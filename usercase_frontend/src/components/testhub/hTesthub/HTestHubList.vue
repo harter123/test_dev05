@@ -1,13 +1,184 @@
+
 <template>
-  <div>testhub</div>
+  <div class="case">
+    <!-- 面包屑 -->
+    <div style="height: 30px;">
+      <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>测试库</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <!-- 卡片 -->
+    <el-card  class="box-card">
+      <div class="testhub-filter-line">
+        <el-input
+            :clearable="true"
+            @change="getTestHubList()"
+            style="width: 200px"
+            placeholder="请输入搜索内容"
+            prefix-icon="el-icon-search"
+            v-model="query.keyword">
+        </el-input>
+        <div>
+          <el-button type="primary" @click="showAddDialog()">创建</el-button>
+        </div>
+
+      </div>
+
+      <div>
+        <!-- 表格 -->
+        <el-table :data="tableData" v-loading="loading" style="width: 100%">
+          <el-table-column prop="name" label="名称" min-width="20%">
+          </el-table-column>
+          <el-table-column prop="flag" label="标识" min-width="10%">
+          </el-table-column>
+          <el-table-column prop="h_test_plan_num" label="测试计划" min-width="30%">
+          </el-table-column>
+          <el-table-column prop="creator_name" label="创建人" min-width="15%">
+          </el-table-column>
+          <el-table-column prop="create_time" label="创建时间" min-width="20%">
+          </el-table-column>
+          <el-table-column fixed="right" label="操作" width="100">
+            <template slot-scope="scope">
+              <el-button @click="showEditDialog(scope.row)" type="primary" size="mini" circle icon="el-icon-edit"></el-button>
+              <el-button @click="showDeleteDialog(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <div class="foot-page">
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :page-sizes="[5, 10, 20, 50]"
+              :page-size=query.size
+              background
+              layout="total, sizes, prev, pager, next"
+              :total=total>
+          </el-pagination>
+        </div>
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>
+import TestHubApi from '../../../request/testHub'
+
 export default {
-  name: "TestHubList"
+  name: "TestHubList",
+  components: {
+
+  },
+  data(){
+    return {
+      loading: false,
+      tableData: [],
+      showAddDailogFlag: false,
+      showEditDailogFlag: false,
+      showDeleteDailogFlag: false,
+      editTestHubId: 0,
+      total: 0,
+      query: {
+        page: 1,
+        size: 5,
+        keyword: "",
+      },
+    }
+  },
+  created() {
+    console.log("父组件", this.showDailog)
+  },
+  mounted() {
+    this.getTestHubList()
+  },
+  methods: {
+    showAddDialog(){
+
+    },
+    showEditDialog(){
+
+    },
+    showDeleteDialog(){
+
+    },
+    //初始化测试库列表列表
+    async getTestHubList() {
+      this.loading = true
+      const resp = await TestHubApi.getTestHubList(this.query)
+      if (resp.success == true) {
+        this.tableData = resp.data.testHubList
+        this.total = resp.data.total
+      } else {
+        this.$message.error(resp.error.message);
+      }
+      this.loading = false
+    },
+
+    // 删除一条项目信息
+    // async deleteModule(row) {
+    //   this.$confirm('是否要删除用例?', '提示', {
+    //     confirmButtonText: '确定',
+    //     cancelButtonText: '取消',
+    //     type: 'warning'
+    //   }).then(() => {
+    //     // ModuleApi.deleteModule(row.id).then(resp =>{
+    //     //   if (resp.success == true) {
+    //     //     this.$message.success("删除成功！")
+    //     //     this.initModule()
+    //     //   } else {
+    //     //     this.$message.error("删除失败");
+    //     //   }
+    //     // })
+    //
+    //   })
+    // },
+
+    // 子组件的回调
+    cancelModule() {
+      console.log("接收到-子组件关闭")
+      this.showDailog = false
+      this.moduleId = 0
+      //this.initModule()
+    },
+
+    // 修改每页显示个数
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.query.size = val
+      //this.initModule()
+    },
+
+    // 点给第几页
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.query.page = val
+      //this.initModule()
+    }
+
+  }
+
 }
 </script>
 
+<style>
+.testhub-filter-line .el-input__icon {
+  height: 50% !important;
+}
+</style>
+
 <style scoped>
+.testhub-filter-line {
+  height: 50px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+}
+.foot-page {
+  margin-top: 20px;
+  float: right;
+  margin-bottom: 20px;
+}
 
 </style>

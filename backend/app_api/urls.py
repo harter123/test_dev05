@@ -27,7 +27,7 @@ router = routers.SimpleRouter()
 router.register(r'v1/case', CaseViewSet)  # 用例管理
 router.register(r'v1/task', TaskViewSet)  # 任务管理
 router.register(r'v1/result', ResultViewSet)  # 结果管理
-router.register(r'v1/testhub', HTestHubViewSet)  # 测试库管理
+router.register(r'v1/testhub', HTestHubViewSet, basename="testhub")  # 测试库管理
 
 urlpatterns = url_path + router.urls
 
