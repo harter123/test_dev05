@@ -45,6 +45,8 @@ class HTestHubViewSet(ModelBaseViewSet):
 
         # 获取前端传来的参数
         params = request.data
+        user = self.get_user(request)
+        params["creator_id"] = user.id
 
         # 更新测试库数据
         serializer = HTestHubValidator(instance=test_hub, data=params)

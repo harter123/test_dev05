@@ -14,14 +14,20 @@ class TestHubApi {
       return request.delete('/v1/testhub/'+tid+'/')
     }
   
-    createTestHub(tid, data) {
+    createTestHub(data) {
       return request.post('/v1/testhub/', data)
     }
   
     updateTestHub(tid, data) {
       return request.put('/v1/testhub/'+tid+'/', data)
     }
-  
+
+    getRecentTestHubList() {
+        return request.get('/v1/recent/testhub/')
+    }
+    createRecentTestHub(data) {
+        return request.post('/v1/recent/testhub/', data)
+    }
   }
   
   export default new TestHubApi()

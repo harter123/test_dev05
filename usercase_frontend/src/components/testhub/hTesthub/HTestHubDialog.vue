@@ -1,7 +1,7 @@
 <template>
   <div class="task-dialog">
     <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestHub()">
-      <el-form :rules="rules" ref="form" :model="form" label-width="80px">
+      <el-form :rules="rules" ref="elForm" :model="form" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
@@ -14,7 +14,7 @@
         <el-form-item>
           <div class="dialog-footer">
             <el-button @click="cancelTestHub()">取消</el-button>
-            <el-button type="primary" @click="onSubmit('form')">保存</el-button>
+            <el-button type="primary" @click="onSubmit()">保存</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -50,52 +50,67 @@ export default {
     }
   },
   created() {
-    if (this.testHubId === 0) {
-      this.showTitle = "创建测试库"
-    } else {
-      this.showTitle = "编辑测试库"
-    }
+    this.init()
   },
   mounted() {
     console.log("自动被执行mounted")
   },
   methods: {
+    async init(){
+      if (this.testHubId === 0) {
+        this.showTitle = "创建测试库"
+        this.form.id = 0
+        this.form.name = ""
+        this.form.describe = ""
+        this.form.flag = ""
+      } else {
+        this.showTitle = "编辑测试库"
+        const resp = await TestHubApi.getTestHub(this.testHubId);
+        if (resp.success == true) {
+          this.form.id = resp.data.id
+          this.form.name = resp.data.name
+          this.form.describe = resp.data.describe
+          this.form.flag = resp.data.flag
+        } else {
+          this.$message.error("获取数据失败！");
+        }
 
+      }
+    },
 
     // 关闭dialog
-    cancelTask() {
+    cancelTestHub() {
       this.$emit('cancel', {})
     },
 
     // 创建任务按钮
-    onSubmit(formName) {
-      // this.$refs[formName].validate((valid) => {
-      //   if (valid) {
-      //     if(this.tid === 0) {
-      //       TaskApi.createTask(this.form).then(resp => {
-      //         if (resp.success == true) {
-      //           this.$message.success("创建成功！")
-      //           this.cancelTask()
-      //         } else {
-      //           this.$message.error("创建失败！");
-      //         }
-      //       })
-      //     } else {
-      //       this.form.id = this.tid
-      //       TaskApi.updateTask(this.form).then(resp => {
-      //         if (resp.success == true) {
-      //           this.$message.success("更新成功！")
-      //           this.cancelTask()
-      //         } else {
-      //           this.$message.error("更新失败！");
-      //         }
-      //       })
-      //     }
-      //
-      //   } else {
-      //     return false;
-      //   }
-      // });
+    onSubmit() {
+      this.$refs.elForm.validate((valid) => {
+        if (valid) {
+          if(this.testHubId === 0) {
+            TestHubApi.createTestHub(this.form).then(resp => {
+              if (resp.success == true) {
+                this.$message.success("创建成功！")
+                this.$emit('success', {})
+              } else {
+                this.$message.error("创建失败！");
+              }
+            })
+          } else {
+            TestHubApi.updateTestHub(this.testHubId, this.form).then(resp => {
+              if (resp.success == true) {
+                this.$message.success("更新成功！")
+                this.$emit('success', {})
+              } else {
+                this.$message.error("更新失败！");
+              }
+            })
+          }
+
+        } else {
+          return false;
+        }
+      });
 
     },
 

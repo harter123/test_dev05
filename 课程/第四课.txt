@@ -1,0 +1,38 @@
+目标：完成测试库的功能
+
+最近访问的接口规划：
+1. 添加最近访问
+2. 获取最近访问
+
+最近访问是有条数限制，我们这里就限制为5条就够了
+怎么去保证每次只有五条呢
+方案：
+1. 在创建的时候，先把数据取出来，然后把多余数据删除掉
+2. 在获取数据的时候，只取前五条
+
+我们这里选择方案1
+
+1 2 3 4 
+如果再访问2
+2 1 3 4
+
+如果再访问3
+3 2 1 4
+
+每次访问已有的数据，需要把数据提前
+最简单的方案 是
+先把原有的数据删除，然后重新插入
+
+
+visited_test_hub_ids = HTestHubVisitedRecently.objects.filter(user_id=user_id).values_list('id', flat=True)
+查询数据库，返回一个id列表，不返回全部数据
+
+over_5_ids = visited_test_hub_ids[5:] # 超过5的id列表
+HTestHubVisitedRecently.objects.filter(id__in=over_5_ids).delete()
+
+
+方案2：
+1. 创建的时候，先查一下数据，如果数据存在，则更新时间，否则直接插入数据
+2. 获取数据的时候，按照更新时间来排序，获取前5条
+
+这个方案更好
