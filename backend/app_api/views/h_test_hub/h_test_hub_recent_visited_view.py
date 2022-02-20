@@ -21,6 +21,7 @@ class HTestHubRecentVisitedViewSet(ModelBaseViewSet):
         user = self.get_user(request)
         params["user_id"] = user.id
 
+        print(123)
         serializer = HTestHubVisitedRecentValidator(data=params)
         serializer.is_valid(raise_exception=True) # 规则校验
         serializer.save()  # 把数据保存到数据库

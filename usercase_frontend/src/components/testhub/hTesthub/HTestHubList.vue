@@ -16,7 +16,7 @@
       </div>
 
       <div style="display: flex">
-        <div class="testhub-recent-item" v-for="item in recentTestHubList" :key="item.id">
+        <div class="testhub-recent-item" v-for="item in recentTestHubList" :key="item.id" @click="gotoTestHub(item.h_test_hub_id)">
           <div style="padding: 15px 10px 10px 10px">
             {{item.test_hub_name}}
           </div>
@@ -48,7 +48,10 @@
       <div>
         <!-- 表格 -->
         <el-table :data="tableData" v-loading="loading" style="width: 100%">
-          <el-table-column prop="name" label="名称" min-width="30%">
+          <el-table-column prop="name" label="名称" min-width="30%" >
+            <template slot-scope="scope">
+              <a @click="gotoTestHub(scope.row.id)" href="javascript:void(0)" >{{scope.row.name}}</a>
+            </template>
           </el-table-column>
           <el-table-column prop="flag" label="标识" min-width="10%">
           </el-table-column>
@@ -171,7 +174,10 @@ export default {
         this.$message.error(resp.error.message);
       }
     },
-
+    gotoTestHub(testHubId){
+      this.$router.push('/main/testHub/' + testHubId + "/testcase")
+      TestHubApi.createRecentTestHub({h_test_hub_id: testHubId})
+    },
     // 删除一条项目信息
     // async deleteModule(row) {
     //   this.$confirm('是否要删除用例?', '提示', {

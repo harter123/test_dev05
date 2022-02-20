@@ -39,6 +39,9 @@ class Error:
     TESTHUB_OBJECT_NULL = {"10071": "测试库对象不存在"}
     TESTHUB_DELETE_ERROR = {"10072": "测试库删除失败"}
 
+    TESTCASEMODULE_ID_NULL = {"10080": "测试库模块id不存在"}
+    TESTCASEMODULE_OBJECT_NULL = {"10081": "测试库模块对象不存在"}
+    TESTCASEMODULE_DELETE_ERROR = {"10082": "测试库模块删除失败"}
 
 def response_fail(error=""):
     """
