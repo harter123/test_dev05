@@ -1,6 +1,6 @@
 
 <template>
-  <div class="case">
+  <div class="case-main">
     <!-- 面包屑 -->
     <div id="case-menu" style="display: flex;justify-content: space-between;border-bottom: solid 1px #e6e6e6;
 }
@@ -19,32 +19,90 @@
       <div style="width: 30%"></div>
     </div>
     <div style="display: flex;justify-content: space-between; padding-top: 10px">
-      <el-card class="box-card" style="width: 29%">
-        <el-tree :data="moduleTree" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
+      <el-card class="box-card" style="width: 24%">
+        <div slot="header" class="clearfix">
+          <span>模块</span>
+        </div>
+
+        <el-tree :data="moduleTree" :props="defaultProps" @node-click="handleNodeClick">
+          <div class="custom-tree-node" slot-scope="{ node, data }">
+
+        <span>{{ node.label }}</span>
+        <span>
+          <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>
+          <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>
+          <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>
+
+        </span>
+      </div>
+
+        </el-tree>
+        <el-button type="text" icon="el-icon-plus" style="float: left; padding-left: 5px"
+                   @click="showAddModuleDialog(0, 0)">新建模块</el-button>
       </el-card>
-      <el-card class="box-card" style="width: 70%">
-        用例
+      <el-card class="box-card" style="width: 75%">
+        <div>
+          <el-table
+              :data="tableData"
+              style="width: 100%;margin-top: -10px">
+            <el-table-column
+                prop="date"
+                label="日期"
+                width="180">
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名"
+                width="180">
+            </el-table-column>
+            <el-table-column
+                prop="address"
+                label="地址">
+            </el-table-column>
+          </el-table>
+        </div>
+
       </el-card>
     </div>
-    <!-- 卡片 -->
+    <HTestModuleDialog v-if="showTestModuleDialogFlag"
+                       :test-module-id="testModuleId"
+                       :parent-id="testModuleParentId"
+                       @cancel="cancelModule"
+                       @sccess="successModule"
+    ></HTestModuleDialog>
   </div>
 </template>
 
 <script>
 import TestHubApi from '../../../../request/testHub'
-// import HTestHubDialog from "./HTestHubDialog.vue"
+import HTestModuleDialog from "./HTestModuleDialog.vue"
 
 export default {
   name: "TestCaseList",
   components: {
-
+    HTestModuleDialog
   },
   data(){
     return {
       loading: false,
-      tableData: [],
-      showTestHubDailogFlag: false,
-      showDeleteDailogFlag: false,
+      tableData: [{
+        date: '2016-05-02',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1518 弄'
+      }, {
+        date: '2016-05-04',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1517 弄'
+      }, {
+        date: '2016-05-01',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1519 弄'
+      }, {
+        date: '2016-05-03',
+        name: '王小虎',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }],
+
       testHubId: 0,
       total: 0,
       query: {
@@ -58,7 +116,11 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'name'
-      }
+      },
+      testModuleId: 0,
+      testModuleParentId: 0,
+      showTestModuleDialogFlag: false,
+      showDeleteDialogFlag: false,
     }
   },
   created() {
@@ -74,19 +136,41 @@ export default {
     handleSelect(key, keyPath){
       console.log(key, keyPath);
     },
-    showAddDialog(){
-      this.showTestHubDailogFlag = true
-      this.testHubId = 0
+    showAddModuleDialog(moduleId, parentId){
+      this.testModuleId = moduleId
+      this.testModuleParentId = parentId
+      this.showTestModuleDialogFlag = true
     },
-    showEditDialog(testHub){
-      this.testHubId = testHub.id
-      this.showTestHubDailogFlag = true
+    showEditModuleDialog(moduleId){
+      this.testModuleId = moduleId
+      this.showTestModuleDialogFlag = true
+    },
+    showDeleteModuleDialog(testModuleId){
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        TestHubApi.deleteTestCaseModule(testModuleId).then(resp => {
+          if (resp.success == true) {
+            this.$message.success("删除成功！")
+            this.getTestHubModuleList()
+          } else {
+            this.$message.error("删除失败！");
+          }
+        })
+      }).catch(() => {
+      });
+    },
+    // 子组件的回调
+    cancelModule() {
+      this.showTestModuleDialogFlag = false
+    },
+    successModule() {
+      this.showTestModuleDialogFlag = false
+      this.getTestHubModuleList()
+    },
 
-    },
-    closeAddEDitDialog(){
-      this.showTestHubDailogFlag = false
-      this.getTestHubList()
-    },
     // showDeleteDialog(testHub){
     //   this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
     //     confirmButtonText: '确定',
@@ -142,13 +226,7 @@ export default {
     //   })
     // },
 
-    // 子组件的回调
-    cancelModule() {
-      console.log("接收到-子组件关闭")
-      this.showDailog = false
-      this.moduleId = 0
-      //this.initModule()
-    },
+
 
     // 修改每页显示个数
     handleSizeChange(val) {
@@ -173,9 +251,30 @@ export default {
 #case-menu .el-menu.el-menu--horizontal {
   border-bottom: none !important;
 }
+
+.case-main .el-tree {
+  background: #ffffff !important;
+}
+
+.case-main .el-card__body{
+  padding: 10px;
+}
+
+.case-main .el-card__header{
+  padding: 13px 20px;
+
+}
 </style>
 
 <style scoped>
+.clearfix{
+  text-align: left;
+}
+.custom-tree-node{
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 100;
+}
 .testhub-recent-item {
   border-left-color: rgb(86, 171, 251);
   background-color: rgba(86, 171, 251, 0.2);

@@ -31,7 +31,7 @@ class HTestCaseModuleViewSet(ModelBaseViewSet):
 
     def create(self, request, *args, **kwargs):
         """
-        post - v1/testhub/testcasemodule  创建测试库的用例模块
+        post - v1/testhub/testcase/module  创建测试库的用例模块
         :param request:
         :param args:
         :param kwargs:
@@ -41,9 +41,9 @@ class HTestCaseModuleViewSet(ModelBaseViewSet):
         params = request.data
         serializer = HTestCaseModuleValidator(data=params)
         serializer.is_valid(raise_exception=True) # 规则校验
-        test_hub = serializer.save()  # 把数据保存到数据库
+        test_module = serializer.save()  # 把数据保存到数据库
         # 数据的序列化，返回给前端
-        ser = HTestHubViewSerializer(test_hub)
+        ser = HTestHubViewSerializer(test_module)
         return self.response_success(data=ser.data)
 
     def update(self, request, pk, *args, **kwargs):
@@ -131,7 +131,7 @@ class HTestCaseModuleViewSet(ModelBaseViewSet):
         """
         # 判断测试库是否存在
         test_case_module = HTestCaseModule.objects.filter(id=pk).first()
-        if not test_hub:
+        if not test_case_module:
             return self.response_success(success=False, error=self.TESTHUB_ID_NULL)
 
         # 数据的序列化，返回给前端

@@ -1,19 +1,13 @@
 <template>
   <div class="task-dialog">
-    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestHub()">
+    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestModule()">
       <el-form :rules="rules" ref="elForm" :model="form" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="标识">
-          <el-input v-model="form.flag"></el-input>
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input type="textarea" v-model="form.describe"></el-input>
-        </el-form-item>
         <el-form-item>
           <div class="dialog-footer">
-            <el-button @click="cancelTestHub()">取消</el-button>
+            <el-button @click="cancelTestModule()">取消</el-button>
             <el-button type="primary" @click="onSubmit()">保存</el-button>
           </div>
         </el-form-item>
@@ -23,10 +17,22 @@
 </template>
 
 <script>
-import TestHubApi from '../../../request/testHub'
+import TestHubApi from '../../../../request/testHub'
 
 export default {
-  props: ['testHubId'],
+  // props: ['testModuleId', "parentId"],
+  props: {
+    testModuleId:{
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    parentId: {
+      type: Number,
+      default: 0,
+      required: true,
+    }
+  },
   data() {
     return {
       showStatus: true,
@@ -34,19 +40,14 @@ export default {
       form: {
         id: 0,
         name: '',
-        describe: '',
-        flag: ""
+        parentId: 0,
       },
       rules: {
         name: [
-          {required: true, message: '请输入测试库名称', trigger: 'blur'}
+          {required: true, message: '请输入模块名称', trigger: 'blur'}
         ],
-        flag: [
-          {required: true, message: '请输入测试库标识', trigger: 'blur'}
-        ]
       },
       inResize: true,
-      data: [],
     }
   },
   created() {
@@ -57,20 +58,18 @@ export default {
   },
   methods: {
     async init(){
-      if (this.testHubId === 0) {
-        this.showTitle = "创建测试库"
+      if (this.testModuleId === 0) {
+        this.showTitle = "创建模块"
         this.form.id = 0
         this.form.name = ""
-        this.form.describe = ""
-        this.form.flag = ""
+        this.form.parentId = this.parentId
       } else {
-        this.showTitle = "编辑测试库"
-        const resp = await TestHubApi.getTestHub(this.testHubId);
+        this.showTitle = "编辑模块"
+        const resp = await TestHubApi.getTestCaseModule(this.testModuleId);
         if (resp.success == true) {
           this.form.id = resp.data.id
           this.form.name = resp.data.name
-          this.form.describe = resp.data.describe
-          this.form.flag = resp.data.flag
+          this.form.parentId = resp.data.parentId
         } else {
           this.$message.error("获取数据失败！");
         }
@@ -79,7 +78,7 @@ export default {
     },
 
     // 关闭dialog
-    cancelTestHub() {
+    cancelTestModule() {
       this.$emit('cancel', {})
     },
 
@@ -87,8 +86,8 @@ export default {
     onSubmit() {
       this.$refs.elForm.validate((valid) => {
         if (valid) {
-          if(this.testHubId === 0) {
-            TestHubApi.createTestHub(this.form).then(resp => {
+          if(this.testModuleId === 0) {
+            TestHubApi.createTestCaseModule(this.form).then(resp => {
               if (resp.success == true) {
                 this.$message.success("创建成功！")
                 this.$emit('success', {})
@@ -97,7 +96,7 @@ export default {
               }
             })
           } else {
-            TestHubApi.updateTestHub(this.testHubId, this.form).then(resp => {
+            TestHubApi.updateTestCaseModule(this.testModuleId, this.form).then(resp => {
               if (resp.success == true) {
                 this.$message.success("更新成功！")
                 this.$emit('success', {})
@@ -127,8 +126,4 @@ export default {
   float: right;
 }
 
-.div-tree {
-  max-height: 180px;
-  overflow: auto;
-}
 </style>

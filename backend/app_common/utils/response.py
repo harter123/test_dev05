@@ -43,6 +43,10 @@ class Error:
     TESTCASEMODULE_OBJECT_NULL = {"10081": "测试库模块对象不存在"}
     TESTCASEMODULE_DELETE_ERROR = {"10082": "测试库模块删除失败"}
 
+    TESTCASE_ID_NULL = {"10070": "测试用例id不存在"}
+    TESTCASE_OBJECT_NULL = {"10071": "测试用例对象不存在"}
+    TESTCASE_DELETE_ERROR = {"10072": "测试用例删除失败"}
+
 def response_fail(error=""):
     """
     返回失败, 主要用于参数验证失败

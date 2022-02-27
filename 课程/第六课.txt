@@ -1,0 +1,19 @@
+vue props的两种写法
+/
+/ props: ['testModuleId', "parentId"],  没有参数校验
+
+这种写法，可以制定一些基本的参数校验，包括必填，类型等等
+  props: {
+    testModuleId:{
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    parentId: {
+      type: Number,
+      default: 0,
+      required: true,
+    }
+  },
+  
+  

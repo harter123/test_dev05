@@ -30,23 +30,23 @@ class TestHubApi {
     }
 
     getTestCaseModuleList(data) {
-        return request.get('/v1/testhubcase/module/', data)
+        return request.get('/v1/testmodule/', data)
     }
 
     getTestCaseModule(tid) {
-        return request.get('/v1/testhubcase/module/'+tid+'/')
+        return request.get('/v1/testmodule/'+tid+'/')
     }
 
     deleteTestCaseModule(tid) {
-        return request.delete('/v1/testhubcase/module/'+tid+'/')
+        return request.delete('/v1/testmodule/'+tid+'/')
     }
 
     createTestCaseModule(data) {
-        return request.post('/v1/testhubcase/module/', data)
+        return request.post('/v1/testmodule/', data)
     }
 
     updateTestCaseModule(tid, data) {
-        return request.put('/v1/testhubcase/module/'+tid+'/', data)
+        return request.put('/v1/testmodule/'+tid+'/', data)
     }
   }
   

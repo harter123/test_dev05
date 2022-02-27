@@ -12,6 +12,7 @@ from app_api.views.task_view import TaskViewSet
 from app_api.views.result_view import ResultViewSet
 from app_api.views.h_test_hub.h_test_hub_view import HTestHubViewSet
 from app_api.views.h_test_hub.h_test_case_module_view import HTestCaseModuleViewSet
+from app_api.views.h_test_hub.h_test_case_view import HTestCaseViewSet
 
 
 url_path = [
@@ -30,9 +31,11 @@ router = routers.SimpleRouter()
 router.register(r'v1/case', CaseViewSet)  # 用例管理
 router.register(r'v1/task', TaskViewSet)  # 任务管理
 router.register(r'v1/result', ResultViewSet)  # 结果管理
+router.register(r'v1/testmodule', HTestCaseModuleViewSet, basename="testModule")  # 测试库模块管理
 router.register(r'v1/testhub', HTestHubViewSet, basename="testhub")  # 测试库管理
+router.register(r'v1/testcase', HTestCaseViewSet, basename="testcase")  # 测试用例管理
 router.register(r'v1/recent/testhub', HTestHubRecentVisitedViewSet, basename="recent")  # 测试库管理
-router.register(r'v1/testhubcase/module', HTestCaseModuleViewSet, basename="testcasemodule")  # 测试库模块管理
+
 
 urlpatterns = url_path + router.urls
 
