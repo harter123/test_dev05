@@ -34,7 +34,7 @@ class HTestCaseModuleValidator(serializers.Serializer):
         }
         """
         # ** 等于是把字典平铺开来，例如 a = {"a1"：1，”b1“: 2},平铺开来九食 a1=1,b1=2
-        test_hub = HTestHub.objects.create(**validated_data)
+        test_hub = HTestCaseModule.objects.create(**validated_data)
         return test_hub
 
     def update(self, instance, validated_data):

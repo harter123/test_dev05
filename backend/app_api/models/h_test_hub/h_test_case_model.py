@@ -3,6 +3,7 @@ from app_api.models.h_test_hub.h_test_hub_model import HTestHub
 from app_api.models.h_test_hub.h_module_model import HTestCaseModule
 from django.contrib.auth.models import User
 
+
 class HTestCase(models.Model):
     """
     模块表
@@ -24,4 +25,4 @@ class HTestCase(models.Model):
     create_time = models.DateTimeField("创建时间", auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.title

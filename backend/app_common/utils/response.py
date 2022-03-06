@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+from django.http.response import JsonResponse
 
 
 class Error:
@@ -11,6 +12,7 @@ class Error:
 
     ParamsTypeError = {"30020": "参数类型错误"}
     JSON_TYPE_ERROR = {"30030": "JSON格式错误"}
+    SYS_ERROR = {"30040": "系统错误"}
 
     USER_ID_NULL = {"40010": "用户id不存在"}
 
@@ -57,7 +59,7 @@ def response_fail(error=""):
     return response_success(success=False, error=error_msg, result=[])
 
 
-def response_success(success: bool = True, error={}, data: any = []) -> Response:
+def response_success(success: bool = True, error={}, data: any = [], json_flag=False) -> Response:
     """
     自定义接口返回格式
     """
@@ -77,5 +79,7 @@ def response_success(success: bool = True, error={}, data: any = []) -> Response
         },
         "data": data
     }
-    return Response(resp)
-
+    if json_flag:
+        return JsonResponse(resp)
+    else:
+        return Response(resp)

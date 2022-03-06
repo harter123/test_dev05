@@ -1,0 +1,63 @@
+ 遗留问题：
+ 1. 虫师没有做异常的统一处理，需要捕捉全局的异常，然后统一的返回
+ 2. 前端的数据传递有问题
+ 
+ 
+ django  rest framework如何做统一的异常处理
+ 1. 再settings添加配置
+ 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'app_common.utils.token_auth.TokenAuthentication'  # 自定义全局认证
+    ],
+    'EXCEPTION_HANDLER':'app_common.utils.expection.custom_exception_handler', #这是使用自定制异常处理
+}
+
+2. 异常处理处理函数
+
+from rest_framework.views import exception_handler
+
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+
+    # Now add the HTTP status code to the response.
+    if response is not None:
+        response.data['status_code'] = response.status_code
+    return response
+	
+	
+Django 统一异常处理
+在 Django 项目中可以自定义 中间件类 继承 django.middleware.common 下的 MiddlewareMixin 中间件类，
+重写 process_exception 方法的异常处理逻辑，
+然后在项目配置下的 中间件中注册 即可进行全局异常处理。
+
+创建中间件，处理异常
+
+from django.utils.deprecation import MiddlewareMixin
+
+from app_common.utils.response import Error, response_success
+
+
+class CommonException(MiddlewareMixin):
+
+    def process_exception(self, request, exception):
+        return response_success(False, error=str(exception), data={}, json_flag=True)
+		
+这里的返回必须是django的response，不能django rest framework的response
+		
+settings定义中间件
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app_common.middleware.crossdomainxhr.XsSharing',
+    'app_common.middleware.common_exception.CommonException',
+]
+

@@ -9,8 +9,8 @@ class HTestCaseViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HTestCase
-        fields = ['id', 'title', 'pre_step', 'step', 'post_step', "expect", 'create_time', 'creator_name'
-                  'status_id', 'priority_id', 'type_id' ,'h_test_hub_id' ,'h_test_module_id']  # 要显示的字段
+        fields = ['id', 'title', 'pre_step', 'step', 'post_step', "expect", 'create_time', 'creator_name',
+                  'status_id', 'priority_id', 'type_id', 'h_test_hub_id', 'h_test_module_id']  # 要显示的字段
 
 
 # 用来做参数检验，以及数据保存
@@ -22,9 +22,9 @@ class HTestCaseValidator(serializers.Serializer):
     h_test_hub_id = serializers.IntegerField(required=True)
     h_test_module_id = serializers.IntegerField(required=True)
     title = serializers.CharField(required=True, max_length=50,
-                                 error_messages={"required": "title不能为空",
-                                                 "invalid": "类型不对",
-                                                 "max_length": "长度不能大于300"})
+                                  error_messages={"required": "title不能为空",
+                                                  "invalid": "类型不对",
+                                                  "max_length": "长度不能大于300"})
 
     pre_step = serializers.CharField(required=False)
     step = serializers.CharField(required=False)
@@ -62,22 +62,3 @@ class HTestCaseValidator(serializers.Serializer):
         instance.type_id = validated_data.get("type_id", instance.type_id)
         instance.save()
         return instance
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

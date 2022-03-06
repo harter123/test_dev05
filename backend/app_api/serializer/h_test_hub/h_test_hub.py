@@ -27,7 +27,7 @@ class HTestHubValidator(serializers.Serializer):
                                                  "invalid": "类型不对",
                                                  "max_length": "长度不能大于20"})
     creator_id = serializers.IntegerField(required=True)
-    describe = serializers.CharField(required=False)
+    describe = serializers.CharField(required=False, allow_blank=True)
     h_test_plan_num = serializers.IntegerField(required=False)
 
     def create(self, validated_data):

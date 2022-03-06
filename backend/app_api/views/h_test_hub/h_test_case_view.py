@@ -1,4 +1,3 @@
-
 from app_api.models.h_test_hub.h_test_case_model import HTestCase
 from app_api.serializer.h_test_hub.h_test_case import HTestCaseValidator, HTestCaseViewSerializer
 from app_common.utils.pagination import Pagination
@@ -7,6 +6,7 @@ from app_common.utils.base_view import ModelBaseViewSet
 
 class HTestCaseViewSet(ModelBaseViewSet):
     serializer_class = HTestCaseViewSerializer
+    queryset = HTestCase.objects.all()
 
     def create(self, request, *args, **kwargs):
         """
@@ -22,7 +22,7 @@ class HTestCaseViewSet(ModelBaseViewSet):
         params["creator_id"] = user.id
 
         serializer = HTestCaseValidator(data=params)
-        serializer.is_valid(raise_exception=True) # 规则校验
+        serializer.is_valid(raise_exception=True)  # 规则校验
         test_case = serializer.save()  # 把数据保存到数据库
 
         # 数据的序列化，返回给前端
@@ -64,11 +64,20 @@ class HTestCaseViewSet(ModelBaseViewSet):
         """
         page = request.query_params.get("page", "1")
         size = request.query_params.get("size", "5")
-        keyword = request.query_params.get("keyword", "")
-        if not keyword:
-            test_cases = HTestCase.objects.filter(is_delete=False)
+        module_ids_str = request.query_params.get("HModuleIds", "")  # id用逗号隔开： 1,2,3
+        module_ids = module_ids_str.split(",")
+        test_hub_id = request.query_params.get("hTestHubId", 0)  #
+        if not test_hub_id or not module_ids_str:
+            self.response_success(data=[])
+
+        if module_ids_str == "all":
+            test_cases = HTestCase.objects.filter(is_delete=False, h_test_hub_id=test_hub_id)
         else:
-            test_cases = HTestCase.objects.filter(is_delete=False, title__contains=keyword)
+            if 0 == len(module_ids):
+                return self.response_success(data=[])
+
+            test_cases = HTestCase.objects.filter(is_delete=False, h_test_hub_id=test_hub_id,
+                                                  h_test_module_id__in=module_ids)
 
         pg = Pagination()
         page_data = pg.paginate_queryset(queryset=test_cases, request=request, view=self)
@@ -113,16 +122,3 @@ class HTestCaseViewSet(ModelBaseViewSet):
         # 数据的序列化，返回给前端
         ser = HTestCaseViewSerializer(test_case)
         return self.response_success(data=ser.data)
-
-
-
-
-
-
-
-
-
-
-
-
-

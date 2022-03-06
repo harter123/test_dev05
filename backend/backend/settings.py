@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app_common.middleware.crossdomainxhr.XsSharing',
+    'app_common.middleware.common_exception.CommonException',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -135,6 +136,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'app_common.utils.token_auth.TokenAuthentication'  # 自定义全局认证
     ],
+    'EXCEPTION_HANDLER':'app_common.utils.expection.custom_exception_handler', #这是使用自定制异常处理
 }
 
 

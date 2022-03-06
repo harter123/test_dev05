@@ -1,7 +1,6 @@
 
 from app_api.models.h_test_hub.h_module_model import HTestCaseModule
 from app_api.serializer.h_test_hub.h_test_case_module import HTestCaseModuleValidator, HTestCaseModuleViewSerializer
-from app_common.utils.pagination import Pagination
 from app_common.utils.base_view import ModelBaseViewSet
 
 
@@ -28,6 +27,7 @@ def sort_module(target, data):
 
 class HTestCaseModuleViewSet(ModelBaseViewSet):
     serializer_class = HTestCaseModuleViewSerializer
+    queryset = HTestCaseModule.objects.all()
 
     def create(self, request, *args, **kwargs):
         """
@@ -43,7 +43,7 @@ class HTestCaseModuleViewSet(ModelBaseViewSet):
         serializer.is_valid(raise_exception=True) # 规则校验
         test_module = serializer.save()  # 把数据保存到数据库
         # 数据的序列化，返回给前端
-        ser = HTestHubViewSerializer(test_module)
+        ser = HTestCaseModuleViewSerializer(test_module)
         return self.response_success(data=ser.data)
 
     def update(self, request, pk, *args, **kwargs):

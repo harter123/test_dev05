@@ -31,9 +31,9 @@ router = routers.SimpleRouter()
 router.register(r'v1/case', CaseViewSet)  # 用例管理
 router.register(r'v1/task', TaskViewSet)  # 任务管理
 router.register(r'v1/result', ResultViewSet)  # 结果管理
-router.register(r'v1/testmodule', HTestCaseModuleViewSet, basename="testModule")  # 测试库模块管理
-router.register(r'v1/testhub', HTestHubViewSet, basename="testhub")  # 测试库管理
-router.register(r'v1/testcase', HTestCaseViewSet, basename="testcase")  # 测试用例管理
+router.register(r'v1/testmodule', HTestCaseModuleViewSet)  # 测试库模块管理
+router.register(r'v1/testhub', HTestHubViewSet)  # 测试库管理
+router.register(r'v1/testcase', HTestCaseViewSet)  # 测试用例管理
 router.register(r'v1/recent/testhub', HTestHubRecentVisitedViewSet, basename="recent")  # 测试库管理
 
 

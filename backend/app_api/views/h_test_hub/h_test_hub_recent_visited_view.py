@@ -7,6 +7,7 @@ from app_common.utils.base_view import ModelBaseViewSet
 
 class HTestHubRecentVisitedViewSet(ModelBaseViewSet):
     serializer_class = HTestHubVisitedRecentViewSerializer
+    queryset = HTestHubVisitedRecently.objects.all()
 
     def create(self, request, *args, **kwargs):
         """

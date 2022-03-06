@@ -31,7 +31,12 @@ export default {
       type: Number,
       default: 0,
       required: true,
-    }
+    },
+    testHubId: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
   },
   data() {
     return {
@@ -40,7 +45,8 @@ export default {
       form: {
         id: 0,
         name: '',
-        parentId: 0,
+        parent_id: 0,
+        h_test_hub_id: 0,
       },
       rules: {
         name: [
@@ -58,18 +64,19 @@ export default {
   },
   methods: {
     async init(){
+      this.form.h_test_hub_id = this.testHubId
       if (this.testModuleId === 0) {
         this.showTitle = "创建模块"
         this.form.id = 0
         this.form.name = ""
-        this.form.parentId = this.parentId
+        this.form.parent_id = this.parentId
       } else {
         this.showTitle = "编辑模块"
         const resp = await TestHubApi.getTestCaseModule(this.testModuleId);
         if (resp.success == true) {
           this.form.id = resp.data.id
           this.form.name = resp.data.name
-          this.form.parentId = resp.data.parentId
+          this.form.parent_id = resp.data.parent_id
         } else {
           this.$message.error("获取数据失败！");
         }

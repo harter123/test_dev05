@@ -5,7 +5,7 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="标识">
+        <el-form-item label="标识" prop="flag">
           <el-input v-model="form.flag"></el-input>
         </el-form-item>
         <el-form-item label="描述">

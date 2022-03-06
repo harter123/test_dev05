@@ -7,6 +7,7 @@ from app_common.utils.base_view import ModelBaseViewSet
 
 class HTestHubViewSet(ModelBaseViewSet):
     serializer_class = HTestHubViewSerializer
+    queryset = HTestHub.objects.all()
 
     def create(self, request, *args, **kwargs):
         """
@@ -22,6 +23,7 @@ class HTestHubViewSet(ModelBaseViewSet):
         params["creator_id"] = user.id
         params["h_test_plan_num"] = 0
 
+        print(1111)
         serializer = HTestHubValidator(data=params)
         serializer.is_valid(raise_exception=True) # 规则校验
         test_hub = serializer.save()  # 把数据保存到数据库

@@ -7,7 +7,7 @@
 ">
       <el-breadcrumb separator-class="el-icon-arrow-right" style="width: 30%">
         <el-breadcrumb-item :to="{ path: '/main/testhub' }">测试库</el-breadcrumb-item>
-        <el-breadcrumb-item>测试库名称 {{ $route.params.testhubId }}</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ testHub.name }}</el-breadcrumb-item>
       </el-breadcrumb>
 
       <div style="margin-top: -20px; width: 30%">
@@ -24,17 +24,22 @@
           <span>模块</span>
         </div>
 
+        <div style="text-align: left">
+          <el-button type="text" icon="el-icon-s-open" style="padding-left: 5px"
+                     @click="showAddModuleDialog(0, 0)">全部用例</el-button>
+        </div>
+
         <el-tree :data="moduleTree" :props="defaultProps" @node-click="handleNodeClick">
           <div class="custom-tree-node" slot-scope="{ node, data }">
 
-        <span>{{ node.label }}</span>
-        <span>
-          <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>
-          <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>
-          <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>
+          <span>{{ node.label }}</span>
+          <span>
+            <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>
+            <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>
+            <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>
 
-        </span>
-      </div>
+          </span>
+        </div>
 
         </el-tree>
         <el-button type="text" icon="el-icon-plus" style="float: left; padding-left: 5px"
@@ -43,21 +48,51 @@
       <el-card class="box-card" style="width: 75%">
         <div>
           <el-table
-              :data="tableData"
+              :data="testCaseList"
               style="width: 100%;margin-top: -10px">
             <el-table-column
-                prop="date"
-                label="日期"
-                width="180">
+                prop="id"
+                label="编号"
+                width="80">
+              <template slot-scope="scope">
+                {{testHub.name}}-{{scope.row.id}}
+              </template>
             </el-table-column>
             <el-table-column
-                prop="name"
-                label="姓名"
-                width="180">
+                prop="status_id"
+                label="状态"
+                width="100">
+              <template slot-scope="scope">
+
+                <el-tag :type="getStatus(scope.row.status_id).type" size="small">{{getStatus(scope.row.status_id).name}}</el-tag>
+
+              </template>
             </el-table-column>
             <el-table-column
-                prop="address"
-                label="地址">
+                prop="title"
+                min-width="200"
+                label="标题">
+            </el-table-column>
+            <el-table-column
+                prop="creator_name"
+                label="创建人"
+                width="150">
+            </el-table-column>
+            <el-table-column
+                prop="priority_id"
+                label="优先级"
+                width="100">
+              <template slot-scope="scope">
+                <el-tag :type="getPriority(scope.row.priority_id).type" size="small">{{getPriority(scope.row.priority_id).name}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+                prop="type_id"
+                label="类型"
+                width="100">
+              <template slot-scope="scope">
+                {{getType(scope.row.type_id).name}}
+              </template>
             </el-table-column>
           </el-table>
         </div>
@@ -67,14 +102,16 @@
     <HTestModuleDialog v-if="showTestModuleDialogFlag"
                        :test-module-id="testModuleId"
                        :parent-id="testModuleParentId"
+                       :test-hub-id="testHubId"
                        @cancel="cancelModule"
-                       @sccess="successModule"
+                       @success="successModule"
     ></HTestModuleDialog>
   </div>
 </template>
 
 <script>
 import TestHubApi from '../../../../request/testHub'
+import HTestCaseMap from "../../../../utils/hTestCase"
 import HTestModuleDialog from "./HTestModuleDialog.vue"
 
 export default {
@@ -85,7 +122,7 @@ export default {
   data(){
     return {
       loading: false,
-      tableData: [{
+      testCaseList: [{
         date: '2016-05-02',
         name: '王小虎',
         address: '上海市普陀区金沙江路 1518 弄'
@@ -104,11 +141,14 @@ export default {
       }],
 
       testHubId: 0,
+      testHub: {},
       total: 0,
       query: {
         page: 1,
         size: 5,
-        keyword: "",
+        total: 0,
+        hTestHubId: 0,
+        HModuleIds: ""
       },
       recentTestHubList: [],
       activeIndex: "htestcase",
@@ -127,9 +167,29 @@ export default {
     console.log("父组件", this.showDailog)
   },
   mounted() {
+    this.testHubId = Number(this.$route.params.testhubId);
     this.getTestHubModuleList()
+    this.getTestHub()
+    this.getTestCase()
   },
   methods: {
+    getStatus(statusId){
+      return HTestCaseMap.getStatus(statusId)
+    },
+    getPriority(priorityId){
+      return HTestCaseMap.getPriority(priorityId)
+    },
+    getType(typeId){
+      return HTestCaseMap.getType(typeId)
+    },
+    async getTestHub(){
+      let resp = await TestHubApi.getTestHub(this.testHubId)
+      if (resp.success == true) {
+        this.testHub = resp.data
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
     handleNodeClick(){
 
     },
@@ -171,23 +231,6 @@ export default {
       this.getTestHubModuleList()
     },
 
-    // showDeleteDialog(testHub){
-    //   this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     // TestHubApi.deleteTestHub(testHub.id).then(resp => {
-    //     //   if (resp.success == true) {
-    //     //     this.$message.success("删除成功！")
-    //     //     this.getTestHubList()
-    //     //   } else {
-    //     //     this.$message.error("删除失败！");
-    //     //   }
-    //     // })
-    //   }).catch(() => {
-    //   });
-    // },
     //初始化测试库列表列表
     async getTestHubModuleList() {
       const resp = await TestHubApi.getTestCaseModuleList({testHubId: this.$route.params.testhubId})
@@ -198,35 +241,17 @@ export default {
       }
     },
     //初始化最近测试库列表列表
-    async getRecentTestHubList() {
-      // const resp = await TestHubApi.getRecentTestHubList()
-      // if (resp.success == true) {
-      //   this.recentTestHubList = resp.data
-      // } else {
-      //   this.$message.error(resp.error.message);
-      // }
+    async getTestCase() {
+      this.query.hTestHubId = this.testHubId
+      this.query.HModuleIds = "all"
+      const resp = await TestHubApi.getTestCaseList(this.query)
+      if (resp.success == true) {
+        this.testCaseList = resp.data.testCaseList;
+        this.query.total = resp.data.total
+      } else {
+        this.$message.error(resp.error.message);
+      }
     },
-
-    // 删除一条项目信息
-    // async deleteModule(row) {
-    //   this.$confirm('是否要删除用例?', '提示', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning'
-    //   }).then(() => {
-    //     // ModuleApi.deleteModule(row.id).then(resp =>{
-    //     //   if (resp.success == true) {
-    //     //     this.$message.success("删除成功！")
-    //     //     this.initModule()
-    //     //   } else {
-    //     //     this.$message.error("删除失败");
-    //     //   }
-    //     // })
-    //
-    //   })
-    // },
-
-
 
     // 修改每页显示个数
     handleSizeChange(val) {

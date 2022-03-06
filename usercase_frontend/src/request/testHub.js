@@ -48,6 +48,26 @@ class TestHubApi {
     updateTestCaseModule(tid, data) {
         return request.put('/v1/testmodule/'+tid+'/', data)
     }
+
+    getTestCaseList(data) {
+        return request.get('/v1/testcase/', data)
+    }
+
+    getTestCase(tid) {
+        return request.get('/v1/testcase/'+tid+'/')
+    }
+
+    deleteTestCase(tid) {
+        return request.delete('/v1/testcase/'+tid+'/')
+    }
+
+    createTestCase(data) {
+        return request.post('/v1/testcase/', data)
+    }
+
+    updateTestCase(tid, data) {
+        return request.put('/v1/testcase/'+tid+'/', data)
+    }
   }
   
   export default new TestHubApi()
