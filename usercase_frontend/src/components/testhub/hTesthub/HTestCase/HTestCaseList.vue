@@ -1,4 +1,3 @@
-
 <template>
   <div class="case-main">
     <!-- 面包屑 -->
@@ -19,33 +18,47 @@
       <div style="width: 30%"></div>
     </div>
     <div style="display: flex;justify-content: space-between; padding-top: 10px">
-      <el-card class="box-card" style="width: 24%">
+      <el-card class="box-card" style="width: 24%;overflow: auto" id="case-menu-module" ref="caseMenuModule">
         <div slot="header" class="clearfix">
           <span>模块</span>
         </div>
 
         <div style="text-align: left">
           <el-button type="text" icon="el-icon-s-open" style="padding-left: 5px"
-                     @click="showAddModuleDialog(0, 0)">全部用例</el-button>
+                     @click="showAddModuleDialog(0, 0)">全部用例
+          </el-button>
         </div>
 
         <el-tree :data="moduleTree" :props="defaultProps" @node-click="handleNodeClick">
           <div class="custom-tree-node" slot-scope="{ node, data }">
 
-          <span>{{ node.label }}</span>
-          <span>
-            <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>
-            <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>
-            <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>
+            <span>{{ node.label }}</span>
+            <span>
+<!--            <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>-->
+              <!--            <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>-->
+              <!--            <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>-->
+            <el-dropdown @command="handleCommand">
+              <span class="el-dropdown-link">
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="{'type': 'add', 'data': data}">添加</el-dropdown-item>
+                <el-dropdown-item :command="{'type': 'edit', 'data': data}">编辑</el-dropdown-item>
+                <el-dropdown-item :command="{'type': 'delete', 'data': data}">删除</el-dropdown-item>
 
+              </el-dropdown-menu>
+            </el-dropdown>
           </span>
-        </div>
+
+
+          </div>
 
         </el-tree>
         <el-button type="text" icon="el-icon-plus" style="float: left; padding-left: 5px"
-                   @click="showAddModuleDialog(0, 0)">新建模块</el-button>
+                   @click="showAddModuleDialog(0, 0)">新建模块
+        </el-button>
       </el-card>
-      <el-card class="box-card" style="width: 75%">
+      <el-card class="box-card" style="width: 75%;overflow: auto">
         <div>
           <el-table
               :data="testCaseList"
@@ -55,7 +68,16 @@
                 label="编号"
                 width="80">
               <template slot-scope="scope">
-                {{testHub.name}}-{{scope.row.id}}
+                {{ testHub.name }}-{{ scope.row.id }}
+              </template>
+            </el-table-column>
+            <el-table-column
+                prop="title"
+                min-width="200"
+                label="标题">
+              <template slot-scope="scope">
+                <a href="javascript:void(0)" style="color: #409EFF; font-weight: normal">{{ scope.row.title }}</a>
+
               </template>
             </el-table-column>
             <el-table-column
@@ -64,15 +86,13 @@
                 width="100">
               <template slot-scope="scope">
 
-                <el-tag :type="getStatus(scope.row.status_id).type" size="small">{{getStatus(scope.row.status_id).name}}</el-tag>
+                <el-tag :type="getStatus(scope.row.status_id).type" size="small">
+                  {{ getStatus(scope.row.status_id).name }}
+                </el-tag>
 
               </template>
             </el-table-column>
-            <el-table-column
-                prop="title"
-                min-width="200"
-                label="标题">
-            </el-table-column>
+
             <el-table-column
                 prop="creator_name"
                 label="创建人"
@@ -83,7 +103,9 @@
                 label="优先级"
                 width="100">
               <template slot-scope="scope">
-                <el-tag :type="getPriority(scope.row.priority_id).type" size="small">{{getPriority(scope.row.priority_id).name}}</el-tag>
+                <el-tag :type="getPriority(scope.row.priority_id).type" size="small">
+                  {{ getPriority(scope.row.priority_id).name }}
+                </el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -91,7 +113,7 @@
                 label="类型"
                 width="100">
               <template slot-scope="scope">
-                {{getType(scope.row.type_id).name}}
+                {{ getType(scope.row.type_id).name }}
               </template>
             </el-table-column>
           </el-table>
@@ -106,6 +128,13 @@
                        @cancel="cancelModule"
                        @success="successModule"
     ></HTestModuleDialog>
+    <HTestAddCaseDialog
+        v-if="addCaseDialogFlag"
+        :test-hub-id="testHubId"
+        @cancel="cancelAddCase"
+        @success="successAddCase"
+    ></HTestAddCaseDialog>
+    <el-button type="primary" @click="openAddCaseDialog" round style="position: absolute; right: 20px; bottom: 25px;">创建用例</el-button>
   </div>
 </template>
 
@@ -113,13 +142,15 @@
 import TestHubApi from '../../../../request/testHub'
 import HTestCaseMap from "../../../../utils/hTestCase"
 import HTestModuleDialog from "./HTestModuleDialog.vue"
+import HTestAddCaseDialog from "./HTestAddCaseDialog.vue"
 
 export default {
   name: "TestCaseList",
   components: {
-    HTestModuleDialog
+    HTestModuleDialog,
+    HTestAddCaseDialog
   },
-  data(){
+  data() {
     return {
       loading: false,
       testCaseList: [{
@@ -161,6 +192,9 @@ export default {
       testModuleParentId: 0,
       showTestModuleDialogFlag: false,
       showDeleteDialogFlag: false,
+
+      moduleHeight: 500,
+      addCaseDialogFlag: false,
     }
   },
   created() {
@@ -171,18 +205,44 @@ export default {
     this.getTestHubModuleList()
     this.getTestHub()
     this.getTestCase()
+
+    this.moduleHeight = document.body.clientHeight - 100
+    document.getElementById('case-menu-module').style.height = this.moduleHeight + 'px'
   },
   methods: {
-    getStatus(statusId){
+    openAddCaseDialog(){
+      this.addCaseDialogFlag = true;
+    },
+    // 子组件的回调
+    cancelAddCase() {
+      this.addCaseDialogFlag = false
+    },
+    successAddCase() {
+      this.addCaseDialogFlag = false
+    },
+    handleCommand(command) {
+      switch (command.type) {
+        case 'add':
+          this.showAddModuleDialog(0, command.data.id)
+          break;
+        case 'edit':
+          this.showEditModuleDialog(command.data.id)
+          break;
+        case 'delete':
+          this.showDeleteModuleDialog(command.data.id)
+          break;
+      }
+    },
+    getStatus(statusId) {
       return HTestCaseMap.getStatus(statusId)
     },
-    getPriority(priorityId){
+    getPriority(priorityId) {
       return HTestCaseMap.getPriority(priorityId)
     },
-    getType(typeId){
+    getType(typeId) {
       return HTestCaseMap.getType(typeId)
     },
-    async getTestHub(){
+    async getTestHub() {
       let resp = await TestHubApi.getTestHub(this.testHubId)
       if (resp.success == true) {
         this.testHub = resp.data
@@ -190,22 +250,22 @@ export default {
         this.$message.error(resp.error.message);
       }
     },
-    handleNodeClick(){
+    handleNodeClick() {
 
     },
-    handleSelect(key, keyPath){
+    handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
-    showAddModuleDialog(moduleId, parentId){
+    showAddModuleDialog(moduleId, parentId) {
       this.testModuleId = moduleId
       this.testModuleParentId = parentId
       this.showTestModuleDialogFlag = true
     },
-    showEditModuleDialog(moduleId){
+    showEditModuleDialog(moduleId) {
       this.testModuleId = moduleId
       this.showTestModuleDialogFlag = true
     },
-    showDeleteModuleDialog(testModuleId){
+    showDeleteModuleDialog(testModuleId) {
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -281,25 +341,27 @@ export default {
   background: #ffffff !important;
 }
 
-.case-main .el-card__body{
+.case-main .el-card__body {
   padding: 10px;
 }
 
-.case-main .el-card__header{
+.case-main .el-card__header {
   padding: 13px 20px;
 
 }
 </style>
 
 <style scoped>
-.clearfix{
+.clearfix {
   text-align: left;
 }
-.custom-tree-node{
+
+.custom-tree-node {
   display: flex;
   justify-content: space-between;
   flex-grow: 100;
 }
+
 .testhub-recent-item {
   border-left-color: rgb(86, 171, 251);
   background-color: rgba(86, 171, 251, 0.2);
@@ -310,18 +372,21 @@ export default {
   cursor: pointer;
   margin-right: 20px;
 }
+
 .testhub-recent-line {
   height: 90px;
   text-align: left;
   /*display: flex;*/
   /*justify-content: space-between;*/
 }
+
 .testhub-filter-line {
   height: 50px;
   text-align: left;
   display: flex;
   justify-content: space-between;
 }
+
 .foot-page {
   margin-top: 20px;
   float: right;
