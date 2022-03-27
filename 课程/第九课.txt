@@ -1,0 +1,6 @@
+内容：完成测试用例的创建和编辑
+
+element  级联框  绑定的数据是数组
+
+
+This field may not be blank  后端报错，代表参数校验不通过，字段不允许为空字段，只要吧allow_blank=true就可以了

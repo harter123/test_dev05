@@ -25,7 +25,7 @@
 
         <div style="text-align: left">
           <el-button type="text" icon="el-icon-s-open" style="padding-left: 5px"
-                     @click="showAddModuleDialog(0, 0)">全部用例
+                     @click="getAllTestCase">全部用例
           </el-button>
         </div>
 
@@ -76,8 +76,7 @@
                 min-width="200"
                 label="标题">
               <template slot-scope="scope">
-                <a href="javascript:void(0)" style="color: #409EFF; font-weight: normal">{{ scope.row.title }}</a>
-
+                <a href="javascript:void(0)" style="color: #409EFF; font-weight: normal" @click="showTestCase(scope.row.id)">{{ scope.row.title }}</a>
               </template>
             </el-table-column>
             <el-table-column
@@ -85,8 +84,9 @@
                 label="状态"
                 width="100">
               <template slot-scope="scope">
-
-                <el-tag :type="getStatus(scope.row.status_id).type" size="small">
+                <span v-if="!scope.row.status_id">
+                </span>
+                <el-tag v-else :type="getStatus(scope.row.status_id).type" size="small">
                   {{ getStatus(scope.row.status_id).name }}
                 </el-tag>
 
@@ -103,7 +103,9 @@
                 label="优先级"
                 width="100">
               <template slot-scope="scope">
-                <el-tag :type="getPriority(scope.row.priority_id).type" size="small">
+                <span v-if="!scope.row.priority_id">
+                </span>
+                <el-tag v-else :type="getPriority(scope.row.priority_id).type" size="small">
                   {{ getPriority(scope.row.priority_id).name }}
                 </el-tag>
               </template>
@@ -135,6 +137,18 @@
         @success="successAddCase"
     ></HTestAddCaseDialog>
     <el-button type="primary" @click="openAddCaseDialog" round style="position: absolute; right: 20px; bottom: 25px;">创建用例</el-button>
+
+    <el-drawer
+        size="40%"
+        :modal="false"
+        :visible.sync="showCaseDrawerFlag"
+        :with-header="false">
+      <HTestShowCaseForm
+          :test-case-id="testCaseId"
+          v-if="showCaseDrawerFlag"
+          :test-hub-id="Number(testHubId)">
+      </HTestShowCaseForm>
+    </el-drawer>
   </div>
 </template>
 
@@ -143,15 +157,19 @@ import TestHubApi from '../../../../request/testHub'
 import HTestCaseMap from "../../../../utils/hTestCase"
 import HTestModuleDialog from "./HTestModuleDialog.vue"
 import HTestAddCaseDialog from "./HTestAddCaseDialog.vue"
+import HTestShowCaseForm from "./HTestShowCaseForm";
 
 export default {
   name: "TestCaseList",
   components: {
     HTestModuleDialog,
-    HTestAddCaseDialog
+    HTestAddCaseDialog,
+    HTestShowCaseForm
   },
   data() {
     return {
+      testCaseId: 0,
+      showCaseDrawerFlag: false,
       loading: false,
       testCaseList: [{
         date: '2016-05-02',
@@ -179,7 +197,7 @@ export default {
         size: 5,
         total: 0,
         hTestHubId: 0,
-        HModuleIds: ""
+        HModuleIds: "all"
       },
       recentTestHubList: [],
       activeIndex: "htestcase",
@@ -210,6 +228,14 @@ export default {
     document.getElementById('case-menu-module').style.height = this.moduleHeight + 'px'
   },
   methods: {
+    showTestCase(testCaseId){
+      this.showCaseDrawerFlag = true
+      this.testCaseId = testCaseId
+    },
+    getAllTestCase(){
+      this.query.HModuleIds = "all"
+      this.getTestCase()
+    },
     openAddCaseDialog(){
       this.addCaseDialogFlag = true;
     },
@@ -219,6 +245,7 @@ export default {
     },
     successAddCase() {
       this.addCaseDialogFlag = false
+      this.getTestCase()
     },
     handleCommand(command) {
       switch (command.type) {
@@ -250,8 +277,9 @@ export default {
         this.$message.error(resp.error.message);
       }
     },
-    handleNodeClick() {
-
+    handleNodeClick(data) {
+      this.query.HModuleIds = data.id
+      this.getTestCase()
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
@@ -303,7 +331,7 @@ export default {
     //初始化最近测试库列表列表
     async getTestCase() {
       this.query.hTestHubId = this.testHubId
-      this.query.HModuleIds = "all"
+
       const resp = await TestHubApi.getTestCaseList(this.query)
       if (resp.success == true) {
         this.testCaseList = resp.data.testCaseList;

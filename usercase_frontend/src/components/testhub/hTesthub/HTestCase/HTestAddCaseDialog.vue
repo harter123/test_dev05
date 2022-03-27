@@ -1,12 +1,15 @@
 <template>
   <div class="h-case-dialog">
-    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestModule()" width="80%" style="margin-top: -9vh;">
+    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestModule()" width="80%"
+               style="margin-top: -9vh;">
       <el-form :rules="rules" ref="elForm" :model="form" label-width="80px" label-position="top">
+        <hr style="height:1px;border:none;border-top:1px solid #C0C4CC;"/>
         <div style="display: flex; justify-content: space-between">
 
-          <div  id="h-case-left" :style="{'height': height, 'width': '65%', 'overflow': 'auto', 'padding-right': '5px'}">
-            <el-form-item label="标题" prop="name">
-              <el-input v-model="form.name"></el-input>
+          <div id="h-case-left"
+               :style="{'height': height, 'width': '65%', 'overflow-y': 'scroll', 'padding-right': '5px'}">
+            <el-form-item label="标题" prop="title">
+              <el-input v-model="form.title"></el-input>
             </el-form-item>
 
             <el-form-item label="前置">
@@ -25,10 +28,10 @@
 
           <div style="width: 33%;text-align: left">
 
-            <el-form-item label="用例模块" prop="module_id">
+            <el-form-item label="用例模块" prop="h_test_module_id">
               <el-cascader
                   :props="{'value': 'id', 'label': 'name'}"
-                  v-model="form.module_id"
+                  v-model="testModuleIdList"
                   :options="moduleTree"
                   @change="handleChange"></el-cascader>
             </el-form-item>
@@ -49,17 +52,17 @@
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
-                  <el-tag :type="item.type" size="small" >
+                  <el-tag :type="item.type" size="small">
                     {{ item.name }}
                   </el-tag>
                 </el-option>
               </el-select>
             </el-form-item>
             <div style="padding: 10px 0 15px 0">
-              测试库: &nbsp; &nbsp;{{testHub.name}}
+              测试库: &nbsp; &nbsp;{{ testHub.name }}
             </div>
             <div style="padding: 0 0 5px 0">
-              创建人: &nbsp; &nbsp;{{user.name}}
+              创建人: &nbsp; &nbsp;{{ user.name }}
             </div>
           </div>
 
@@ -92,6 +95,8 @@ export default {
     return {
       showStatus: true,
       showTitle: '创建用例',
+
+      testModuleIdList: [],
       form: {
         id: 0,
         title: '',
@@ -100,17 +105,19 @@ export default {
         post_step: '',
         expect: '',
         type_id: undefined,
-        priority_id: undefined,
-        module_id: undefined,
+        priority_id: 1,
+        h_test_module_id: undefined,
+        h_test_hub_id: 0,
+        status_id: 1,
       },
       rules: {
-        name: [
-          {required: true, message: '请输入模块名称', trigger: 'blur'}
+        title: [
+          {required: true, message: '请输入用例标题', trigger: 'blur'}
         ],
       },
       inResize: true,
       height: '200px',
-      caseTypes:[],
+      caseTypes: [],
       casePriority: [],
       moduleTree: [],
       user: {},
@@ -144,32 +151,15 @@ export default {
         this.$message.error(resp.error.message);
       }
     },
-    handleChange(){
+    handleChange() {
 
     },
-    async init(){
+    async init() {
+
       this.casePriority = HTestCaseMap.getPriorityList()
       this.caseTypes = HTestCaseMap.getTypeList()
       this.getTestHub()
       this.getTestHubModuleList()
-      // this.form.h_test_hub_id = this.testHubId
-      // if (this.testModuleId === 0) {
-      //   this.showTitle = "创建模块"
-      //   this.form.id = 0
-      //   this.form.name = ""
-      //   this.form.parent_id = this.parentId
-      // } else {
-      //   this.showTitle = "编辑模块"
-      //   const resp = await TestHubApi.getTestCaseModule(this.testModuleId);
-      //   if (resp.success == true) {
-      //     this.form.id = resp.data.id
-      //     this.form.name = resp.data.name
-      //     this.form.parent_id = resp.data.parent_id
-      //   } else {
-      //     this.$message.error("获取数据失败！");
-      //   }
-      //
-      // }
     },
 
     // 关闭dialog
@@ -181,25 +171,20 @@ export default {
     onSubmit() {
       this.$refs.elForm.validate((valid) => {
         if (valid) {
-          if(this.testModuleId === 0) {
-            TestHubApi.createTestCaseModule(this.form).then(resp => {
-              if (resp.success == true) {
-                this.$message.success("创建成功！")
-                this.$emit('success', {})
-              } else {
-                this.$message.error("创建失败！");
-              }
-            })
-          } else {
-            TestHubApi.updateTestCaseModule(this.testModuleId, this.form).then(resp => {
-              if (resp.success == true) {
-                this.$message.success("更新成功！")
-                this.$emit('success', {})
-              } else {
-                this.$message.error("更新失败！");
-              }
-            })
+          console.log(this.testModuleIdList)
+          if(this.testModuleIdList.length > 0){
+            this.form.h_test_module_id = this.testModuleIdList[this.testModuleIdList.length -1 ] //取最后一项
           }
+          this.form.h_test_hub_id = this.testHubId
+
+          TestHubApi.createTestCase(this.form).then(resp => {
+            if (resp.success == true) {
+              this.$message.success("创建成功！")
+              this.$emit('success', {})
+            } else {
+              this.$message.error("创建失败！");
+            }
+          })
 
         } else {
           return false;
@@ -214,19 +199,19 @@ export default {
 </script>
 
 <style>
-.h-case-dialog .el-dialog__body{
-  padding: 15px 15px 1px 15px;
+.h-case-dialog .el-dialog__body {
+  padding: 0px 15px 1px 15px;
 }
 
-.h-case-dialog .el-form-item{
+.h-case-dialog .el-form-item {
   text-align: left;
 }
 
-.h-case-dialog .el-form--label-top .el-form-item__label{
+.h-case-dialog .el-form--label-top .el-form-item__label {
   padding: 0;
 }
 
-.h-case-dialog .el-form-item{
+.h-case-dialog .el-form-item {
   margin-bottom: 10px;
 }
 

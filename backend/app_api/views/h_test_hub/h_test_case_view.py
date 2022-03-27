@@ -65,6 +65,8 @@ class HTestCaseViewSet(ModelBaseViewSet):
         page = request.query_params.get("page", "1")
         size = request.query_params.get("size", "5")
         module_ids_str = request.query_params.get("HModuleIds", "")  # id用逗号隔开： 1,2,3
+        if not module_ids_str:
+            module_ids_str = "all"
         module_ids = module_ids_str.split(",")
         test_hub_id = request.query_params.get("hTestHubId", 0)  #
         if not test_hub_id or not module_ids_str:

@@ -26,10 +26,10 @@ class HTestCaseValidator(serializers.Serializer):
                                                   "invalid": "类型不对",
                                                   "max_length": "长度不能大于300"})
 
-    pre_step = serializers.CharField(required=False)
-    step = serializers.CharField(required=False)
-    post_step = serializers.CharField(required=False)
-    expect = serializers.CharField(required=False)
+    pre_step = serializers.CharField(required=False, allow_blank=True,)
+    step = serializers.CharField(required=False, allow_blank=True,)
+    post_step = serializers.CharField(required=False, allow_blank=True,)
+    expect = serializers.CharField(required=False, allow_blank=True,)
 
     status_id = serializers.IntegerField(required=False)
     priority_id = serializers.IntegerField(required=False)
