@@ -1,0 +1,34 @@
+内容：完成测试用例的编辑和删除
+
+级联框的默认之有些麻烦，绑定的数据需要是一个数据，并且给出从根节点，到叶节点全部的数据。
+但是我们后端只是保存了叶节点
+
+解决方法：
+在前端写一个算法，遍历树形结构，一层层遍历，直到找到叶节点，然后把所有的父节点+叶节点，顺序组装成为一个数组
+
+这个一个很高明的回溯算法
+
+getTreeDeepArr(moduleId, moduleTreeData) {
+      let arr = []; // 在递归时操作的数组
+      let returnArr = []; // 存放结果的数组
+      let depth = 0; // 定义全局层级
+      // 定义递归函数
+      function childrenEach(childrenData, depthN) {
+        for (let j = 0; j < childrenData.length; j++) {
+          depth = depthN; // 将执行的层级赋值 到 全局层级
+          arr[depthN] = (childrenData[j].id);
+          if (childrenData[j].id == moduleId) {
+            returnArr = arr.slice(0, depthN + 1); //将目前匹配的数组，截断并保存到结果数组，
+            break
+          } else {
+            if (childrenData[j].children) {
+              depth++;
+              childrenEach(childrenData[j].children, depth);
+            }
+          }
+        }
+        return returnArr;
+      }
+
+      return childrenEach(moduleTreeData, depth);
+    },

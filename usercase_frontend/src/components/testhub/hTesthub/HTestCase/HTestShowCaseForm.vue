@@ -17,7 +17,7 @@
     </div>
     <div style="display: flex; justify-content: space-between; margin-top: 5px">
       <div class="h-case-form-rich-p">
-        <el-dropdown trigger="click">
+        <el-dropdown trigger="click" @command="handleCommandStatus">
           <span class="el-dropdown-link" style="cursor: pointer">
             <span v-if="!form.status_id" class="h-case-form-title-3">
               状态
@@ -28,7 +28,7 @@
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-for="item in caseStatus" :key="item.id">
+            <el-dropdown-item v-for="item in caseStatus" :key="item.id" :command="item.id">
               <el-tag :type="item.type" size="small">{{ item.name }}</el-tag>
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -36,7 +36,7 @@
 
       </div>
       <div class="h-case-form-rich-p">
-        <el-dropdown trigger="click">
+        <el-dropdown trigger="click" @command="handleCommandPriority">
           <span class="el-dropdown-link" style="cursor: pointer">
             <span v-if="!form.priority_id" class="h-case-form-title-3">
               优先级
@@ -47,14 +47,14 @@
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-for="item in casePriority" :key="item.id">
+            <el-dropdown-item v-for="item in casePriority" :key="item.id" :command="item.id">
               <el-tag :type="item.type" size="small">{{ item.name }}</el-tag>
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
       <div class="h-case-form-rich-p">
-        <el-dropdown trigger="click">
+        <el-dropdown trigger="click" @command="handleCommandType">
           <span class="el-dropdown-link" style="cursor: pointer">
 
             <span v-if="!form.type_id" class="h-case-form-title-3">
@@ -66,7 +66,9 @@
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-for="item in caseTypes" :key="item.id">{{ item.name }}</el-dropdown-item>
+            <el-dropdown-item v-for="item in caseTypes" :key="item.id" :command="item.id">
+              {{ item.name }}
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -77,8 +79,28 @@
             :props="{'value': 'id', 'label': 'name'}"
             v-model="testModuleIdList"
             :options="moduleTree"
-            @change="handleChange"></el-cascader>
+            @change="handleChangeModule"></el-cascader>
       </div>
+    </div>
+
+    <div class="h-case-form-text">
+      <div class="h-case-form-text-p">前置</div>
+      <el-input type="textarea" v-model="form.pre_step" @blur="handleChangePre"></el-input>
+    </div>
+    <div class="h-case-form-text">
+      <div class="h-case-form-text-p">步骤</div>
+      <el-input type="textarea" v-model="form.step" :rows="4" @blur="handleChangeStep"></el-input>
+    </div>
+    <div class="h-case-form-text">
+      <div class="h-case-form-text-p">后置</div>
+      <el-input type="textarea" v-model="form.post_step" @blur="handleChangePost"></el-input>
+    </div>
+    <div class="h-case-form-text">
+      <div class="h-case-form-text-p">预期</div>
+      <el-input type="textarea" v-model="form.expect" @blur="handleChangeExpect"></el-input>
+    </div>
+    <div style="color: #aaa;font-size: 11px; margin-top: 15px">
+      {{ user.name }} 创建于 {{ form.create_time }}
     </div>
     <!--        -->
     <!--    <div style="display: flex; justify-content: space-between">-->
@@ -149,6 +171,72 @@ export default {
     this.user = JSON.parse(user);
   },
   methods: {
+    // 定义递归函数
+    getTreeDeepArr(moduleId, moduleTreeData) {
+      let arr = []; // 在递归时操作的数组
+      let returnArr = []; // 存放结果的数组
+      let depth = 0; // 定义全局层级
+      // 定义递归函数
+      function childrenEach(childrenData, depthN) {
+        for (let j = 0; j < childrenData.length; j++) {
+          depth = depthN; // 将执行的层级赋值 到 全局层级
+          arr[depthN] = childrenData[j].id;
+          if (childrenData[j].id == moduleId) {
+            returnArr = arr.slice(0, depthN + 1); //将目前匹配的数组，截断并保存到结果数组，
+            break
+          } else {
+            if (childrenData[j].children) {
+              depth++;
+              childrenEach(childrenData[j].children, depth);
+            }
+          }
+        }
+        return returnArr;
+      }
+      return childrenEach(moduleTreeData, depth);
+    },
+    handleCommandStatus(statusId) {
+      let params = {"status_id": statusId}
+      this.updateTestCase(params)
+    },
+    handleCommandType(typeId) {
+      let params = {"type_id": typeId}
+      this.updateTestCase(params)
+    },
+    handleCommandPriority(priorityId) {
+      let params = {"priority_id": priorityId}
+      this.updateTestCase(params)
+    },
+    handleChangeModule(value) {
+      let moduleId = value[value.length - 1]
+      let params = {"h_test_module_id": moduleId}
+      this.updateTestCase(params)
+    },
+    handleChangePre() {
+      let params = {"pre_step": this.form.pre_step}
+      this.updateTestCase(params)
+    },
+    handleChangeStep() {
+      let params = {"step": this.form.step}
+      this.updateTestCase(params)
+    },
+    handleChangePost() {
+      let params = {"post_step": this.form.post_step}
+      this.updateTestCase(params)
+    },
+    handleChangeExpect() {
+      let params = {"expect": this.form.expect}
+      this.updateTestCase(params)
+    },
+    async updateTestCase(params) {
+      const resp = await TestHubApi.updateTestCase(this.testCaseId, params)
+      if (resp.success == true) {
+        this.form = resp.data
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
+
     async getTestHubModuleList() {
       const resp = await TestHubApi.getTestCaseModuleList({testHubId: this.$route.params.testhubId})
       if (resp.success == true) {
@@ -174,16 +262,15 @@ export default {
         this.$message.error(resp.error.message);
       }
     },
-    handleChange() {
-
-    },
     async init() {
       this.casePriority = HTestCaseMap.getPriorityList()
       this.caseTypes = HTestCaseMap.getTypeList()
       this.caseStatus = HTestCaseMap.getStatusList()
-      this.getTestHub()
-      this.getTestCase()
-      this.getTestHubModuleList()
+      await this.getTestHub()
+      await this.getTestCase()
+      await this.getTestHubModuleList()
+
+      this.testModuleIdList = this.getTreeDeepArr(this.form.h_test_module_id, this.moduleTree)
     },
 
     getStatus(statusID) {
@@ -256,8 +343,13 @@ export default {
 .h-case-form-module .el-cascader {
   line-height: 30px;
 }
-.h-case-form-module .el-input__icon{
+
+.h-case-form-module .el-input__icon {
   line-height: 30px;
+}
+
+.h-case-form-text .el-textarea__inner {
+  padding: 5px;
 }
 
 </style>
@@ -292,5 +384,15 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center
+}
+
+.h-case-form-text {
+  padding-top: 8px;
+}
+
+.h-case-form-text-p {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 5px;
 }
 </style>

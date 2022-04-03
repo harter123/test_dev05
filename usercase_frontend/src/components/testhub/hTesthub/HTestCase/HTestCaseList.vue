@@ -76,7 +76,10 @@
                 min-width="200"
                 label="标题">
               <template slot-scope="scope">
-                <a href="javascript:void(0)" style="color: #409EFF; font-weight: normal" @click="showTestCase(scope.row.id)">{{ scope.row.title }}</a>
+                <a href="javascript:void(0)" style="color: #409EFF; font-weight: normal; display: flex; align-items: center" @click="showTestCase(scope.row.id)">
+                  <svg style="width: 15px; height: 15px" t="1648959546637" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="43792" width="200" height="200"><path d="M853.333333 0h-512C273.066667 0 213.333333 59.733333 213.333333 128v597.333333c0 68.266667 59.733333 128 128 128h512c68.266667 0 128-59.733333 128-128v-597.333333C981.333333 59.733333 921.6 0 853.333333 0z m42.666667 725.333333c0 25.6-17.066667 42.666667-42.666667 42.666667h-512c-25.6 0-42.666667-17.066667-42.666666-42.666667v-597.333333c0-25.6 17.066667-42.666667 42.666666-42.666667h512c25.6 0 42.666667 17.066667 42.666667 42.666667v597.333333zM768 512h-341.333333c-25.6 0-42.666667 17.066667-42.666667 42.666667s17.066667 42.666667 42.666667 42.666666h341.333333c25.6 0 42.666667-17.066667 42.666667-42.666666S793.6 512 768 512z m-256-85.333333h170.666667c25.6 0 42.666667-17.066667 42.666666-42.666667S708.266667 341.333333 682.666667 341.333333h-170.666667c-25.6 0-42.666667 17.066667-42.666667 42.666667s17.066667 42.666667 42.666667 42.666667z m341.333333 512h-682.666666c-25.6 0-42.666667-17.066667-42.666667-42.666667v-682.666667C128 187.733333 110.933333 170.666667 85.333333 170.666667s-42.666667 17.066667-42.666666 42.666666v682.666667c0 68.266667 59.733333 128 128 128h682.666666c25.6 0 42.666667-17.066667 42.666667-42.666667s-17.066667-42.666667-42.666667-42.666666z" p-id="43793" fill="#3ddc91"></path></svg>
+                  <span style="margin-left: 5px">{{ scope.row.title }}</span>
+                </a>
               </template>
             </el-table-column>
             <el-table-column
@@ -116,6 +119,12 @@
                 width="100">
               <template slot-scope="scope">
                 {{ getType(scope.row.type_id).name }}
+              </template>
+            </el-table-column>
+
+            <el-table-column fixed="right" label="操作" width="50">
+              <template slot-scope="scope">
+                <el-button @click="showDeleteDialog(scope.row)" type="danger" size="mini" circle icon="el-icon-delete"></el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -228,6 +237,23 @@ export default {
     document.getElementById('case-menu-module').style.height = this.moduleHeight + 'px'
   },
   methods: {
+    showDeleteDialog(data){
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        TestHubApi.deleteTestCase(data.id).then(resp => {
+          if (resp.success == true) {
+            this.$message.success("删除成功！")
+            this.getTestCase()
+          } else {
+            this.$message.error("删除失败！");
+          }
+        })
+      }).catch(() => {
+      });
+    },
     showTestCase(testCaseId){
       this.showCaseDrawerFlag = true
       this.testCaseId = testCaseId

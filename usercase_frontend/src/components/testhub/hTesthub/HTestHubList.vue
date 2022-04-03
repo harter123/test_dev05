@@ -4,8 +4,11 @@
     <!-- 面包屑 -->
     <div style="height: 30px;">
       <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>测试库</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/' }">
+          首页</el-breadcrumb-item>
+        <el-breadcrumb-item>
+          测试库
+        </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
 
@@ -17,8 +20,9 @@
 
       <div style="display: flex">
         <div class="testhub-recent-item" v-for="item in recentTestHubList" :key="item.id" @click="gotoTestHub(item.h_test_hub_id)">
-          <div style="padding: 15px 10px 10px 10px">
-            {{item.test_hub_name}}
+          <div style="padding: 15px 10px 10px 10px; display: flex; align-items: center">
+            <img class="app-icon" src="https://cdn.pingcode.com/static/portal/assets/app-icons/app-testhub-square-fill.svg?v=3.62.2">
+            <span style="font-size: 18px;margin-left: 5px">{{item.test_hub_name}}</span>
           </div>
           <div style="color: #aaa;font-size: .75rem;padding: 5px 10px 5px 10px">
             {{item.test_hub_creator_name}} . {{item.test_hub_create_time}}
@@ -50,7 +54,11 @@
         <el-table :data="tableData" v-loading="loading" style="width: 100%">
           <el-table-column prop="name" label="名称" min-width="30%" >
             <template slot-scope="scope">
-              <a @click="gotoTestHub(scope.row.id)" href="javascript:void(0)" >{{scope.row.name}}</a>
+              <div style="display: flex; align-items: center">
+                <img width="15px" height="15px" class="app-icon" src="https://cdn.pingcode.com/static/portal/assets/app-icons/app-testhub-square-fill.svg?v=3.62.2">
+                <a style="line-height: 15px;font-weight: normal; margin-left: 5px" @click="gotoTestHub(scope.row.id)" href="javascript:void(0)" >{{scope.row.name}}</a>
+              </div>
+
             </template>
           </el-table-column>
           <el-table-column prop="flag" label="标识" min-width="10%">

@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import serializers
 from app_api.models.h_test_hub.h_test_case_model import HTestCase
 
@@ -13,7 +14,7 @@ class HTestCaseViewSerializer(serializers.ModelSerializer):
                   'status_id', 'priority_id', 'type_id', 'h_test_hub_id', 'h_test_module_id']  # 要显示的字段
 
 
-# 用来做参数检验，以及数据保存
+# 用来做参数检验，以及数据创建
 class HTestCaseValidator(serializers.Serializer):
     """
     测试库的验证器
@@ -26,10 +27,10 @@ class HTestCaseValidator(serializers.Serializer):
                                                   "invalid": "类型不对",
                                                   "max_length": "长度不能大于300"})
 
-    pre_step = serializers.CharField(required=False, allow_blank=True,)
-    step = serializers.CharField(required=False, allow_blank=True,)
-    post_step = serializers.CharField(required=False, allow_blank=True,)
-    expect = serializers.CharField(required=False, allow_blank=True,)
+    pre_step = serializers.CharField(required=False, allow_blank=True, )
+    step = serializers.CharField(required=False, allow_blank=True, )
+    post_step = serializers.CharField(required=False, allow_blank=True, )
+    expect = serializers.CharField(required=False, allow_blank=True, )
 
     status_id = serializers.IntegerField(required=False)
     priority_id = serializers.IntegerField(required=False)
@@ -43,6 +44,35 @@ class HTestCaseValidator(serializers.Serializer):
         # ** 等于是把字典平铺开来，例如 a = {"a1"：1，”b1“: 2},平铺开来九食 a1=1,b1=2
         test_hub = HTestCase.objects.create(**validated_data)
         return test_hub
+
+    def update(self, instance, validated_data):
+        return instance
+
+
+# 用来做参数检验，以及数据编辑
+class HTestCaseUpdateValidator(HTestCaseValidator):
+    """
+    测试库的验证器
+    """
+    creator_id = serializers.IntegerField(required=False)
+    h_test_hub_id = serializers.IntegerField(required=False)
+    h_test_module_id = serializers.IntegerField(required=False)
+    title = serializers.CharField(required=False, max_length=50,
+                                  error_messages={"required": "title不能为空",
+                                                  "invalid": "类型不对",
+                                                  "max_length": "长度不能大于300"})
+
+    pre_step = serializers.CharField(required=False, allow_blank=True, )
+    step = serializers.CharField(required=False, allow_blank=True, )
+    post_step = serializers.CharField(required=False, allow_blank=True, )
+    expect = serializers.CharField(required=False, allow_blank=True, )
+
+    status_id = serializers.IntegerField(required=False)
+    priority_id = serializers.IntegerField(required=False)
+    type_id = serializers.IntegerField(required=False)
+
+    def create(self, validated_data):
+        return None
 
     def update(self, instance, validated_data):
         """
@@ -60,5 +90,9 @@ class HTestCaseValidator(serializers.Serializer):
         instance.status_id = validated_data.get("status_id", instance.status_id)
         instance.priority_id = validated_data.get("priority_id", instance.priority_id)
         instance.type_id = validated_data.get("type_id", instance.type_id)
+        if not instance.update_time:
+            instance.update_time = datetime.datetime.now()
+        if not instance.create_time:
+            instance.create_time = datetime.datetime.now()
         instance.save()
         return instance
