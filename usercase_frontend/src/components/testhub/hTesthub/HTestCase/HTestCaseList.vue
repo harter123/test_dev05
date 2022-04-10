@@ -11,8 +11,8 @@
 
       <div style="margin-top: -20px; width: 30%">
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-          <el-menu-item index="htestcase">用例管理</el-menu-item>
-          <el-menu-item index="htestplan">测试计划</el-menu-item>
+          <el-menu-item index="testcase">用例管理</el-menu-item>
+          <el-menu-item index="testplan">测试计划</el-menu-item>
         </el-menu>
       </div>
       <div style="width: 30%"></div>
@@ -209,7 +209,7 @@ export default {
         HModuleIds: "all"
       },
       recentTestHubList: [],
-      activeIndex: "htestcase",
+      activeIndex: "testcase",
       moduleTree: [],
       defaultProps: {
         children: 'children',
@@ -307,8 +307,8 @@ export default {
       this.query.HModuleIds = data.id
       this.getTestCase()
     },
-    handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+    handleSelect(key) {
+      this.$router.push('/main/testHub/' + this.testHubId + "/" + key)
     },
     showAddModuleDialog(moduleId, parentId) {
       this.testModuleId = moduleId

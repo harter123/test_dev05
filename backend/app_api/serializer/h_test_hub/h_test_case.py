@@ -57,7 +57,7 @@ class HTestCaseUpdateValidator(HTestCaseValidator):
     creator_id = serializers.IntegerField(required=False)
     h_test_hub_id = serializers.IntegerField(required=False)
     h_test_module_id = serializers.IntegerField(required=False)
-    title = serializers.CharField(required=False, max_length=50,
+    title = serializers.CharField(required=False, max_length=300,
                                   error_messages={"required": "title不能为空",
                                                   "invalid": "类型不对",
                                                   "max_length": "长度不能大于300"})

@@ -1,0 +1,258 @@
+<template>
+  <div class="case-main">
+    <!-- 面包屑 -->
+    <div id="case-menu" style="display: flex;justify-content: space-between;border-bottom: solid 1px #e6e6e6;
+}
+">
+      <el-breadcrumb separator-class="el-icon-arrow-right" style="width: 30%">
+        <el-breadcrumb-item :to="{ path: '/main/testhub' }">测试库</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ testHub.name }}</el-breadcrumb-item>
+      </el-breadcrumb>
+
+      <div style="margin-top: -20px; width: 30%">
+        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+          <el-menu-item index="testcase">用例管理</el-menu-item>
+          <el-menu-item index="testplan">测试计划</el-menu-item>
+        </el-menu>
+      </div>
+      <div style="width: 30%"></div>
+    </div>
+    <div style="margin-top: 10px;">
+      <el-card>
+        <div class="testplan-filter-line">
+          <div>
+            <el-input
+                :clearable="true"
+                @change="getTestPlanList()"
+                style="width: 200px;margin-right: 10px"
+                placeholder="请输入搜索内容"
+                prefix-icon="el-icon-search"
+                v-model="query.keyword">
+            </el-input>
+
+            <el-dropdown trigger="click" @command="handleCommandStatus">
+              <span class="el-dropdown-link" style="cursor: pointer">
+                <span v-if="query.statusId == undefined" class="h-case-form-title-3">
+                  状态
+                </span>
+                <el-tag v-else :type="getStatus(query.statusId).type" size="small">
+                  {{ getStatus(query.statusId).name }}</el-tag>
+                <i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="item in testPlanStatus" :key="item.id" :command="item.id">
+                  <el-tag :type="item.type" size="small">{{ item.name }}</el-tag>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+
+          <div>
+            <el-button type="primary" @click="showAddDialog()">创建</el-button>
+          </div>
+
+        </div>
+
+        <div id="test-plan-id">
+          <!-- 表格 -->
+          <el-table id="test-plan-table-id" :data="tableData" v-loading="loading" style="width: 100%">
+            <el-table-column prop="name" label="名称" min-width="30%">
+              <template slot-scope="scope">
+                <div style="display: flex; align-items: center">
+                  <img width="15px" height="15px" class="app-icon"
+                       src="https://cdn.pingcode.com/static/portal/assets/app-icons/app-testhub-square-fill.svg?v=3.62.2">
+                  <a style="line-height: 15px;font-weight: normal; margin-left: 5px" @click="gotoTestPlan(scope.row.id)"
+                     href="javascript:void(0)">{{ scope.row.name }}</a>
+                </div>
+
+              </template>
+            </el-table-column>
+            <el-table-column prop="flag" label="状态" min-width="10%">
+            </el-table-column>
+            <el-table-column prop="h_test_plan_num" label="结果" min-width="10%">
+            </el-table-column>
+            <el-table-column prop="creator_name" label="创建人" min-width="15%">
+            </el-table-column>
+            <el-table-column prop="creator_name" label="负责人" min-width="15%">
+            </el-table-column>
+            <el-table-column prop="create_time" label="时间" min-width="15%">
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" width="100">
+              <template slot-scope="scope">
+                <el-button @click="showEditDialog(scope.row)" type="primary" size="mini" circle
+                           icon="el-icon-edit"></el-button>
+                <el-button @click="showDeleteDialog(scope.row)" type="danger" size="mini" circle
+                           icon="el-icon-delete"></el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <!-- 分页 -->
+          <div class="foot-page">
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :page-sizes="[5, 10, 20, 50]"
+                :page-size=query.size
+                background
+                layout="total, sizes, prev, pager, next"
+                :total=total>
+            </el-pagination>
+          </div>
+        </div>
+      </el-card>
+
+    </div>
+    <testPlanDialog v-if="showTestPlanDailogFlag"
+                    :test-hub-id="testHubId"
+                    @cancel="showTestPlanDailogFlag=false"
+                    @sucess="closeAddEDitDialog"
+                    :test-plan-id="editTestPlanId">
+
+    </testPlanDialog>
+  </div>
+</template>
+
+<script>
+import TestHubApi from "../../../../request/testHub";
+import HTestCaseMap from "../../../../utils/hTestCase";
+import testPlanDialog from "./HTestPlanDialog"
+
+export default {
+  name: "HTestPlanList",
+  components: {
+    testPlanDialog,
+  },
+  data() {
+    return {
+      testHubId: 0,
+      testHub: {},
+      clientHeight: 100,
+      activeIndex: "testplan",
+
+      loading: false,
+      tableData: [],
+      showTestPlanDailogFlag: false,
+      showDeleteDailogFlag: false,
+      total: 0,
+      query: {
+        page: 1,
+        size: 5,
+        name: "",
+        statusId: undefined,
+        hTestHubId: 0
+      },
+      editTestPlanId: 0,
+      testPlanStatus: []
+    }
+  },
+  mounted() {
+    this.testHubId = Number(this.$route.params.testhubId);
+    this.getTestHub()
+    this.getTestPlanList()
+
+    this.testPlanStatus = HTestCaseMap.getTestPlanStatusList()
+    this.clientHeight = document.body.clientHeight - 190
+    document.getElementById('test-plan-table-id').style.height = this.clientHeight + 'px'
+  },
+  methods: {
+    getStatus(statusID) {
+      return HTestCaseMap.getTestPlanStatus(statusID)
+    },
+    handleCommandStatus(statusId) {
+      this.query.statusId = statusId
+      this.getTestPlanList()
+    },
+    handleSelect(key) {
+      this.$router.push('/main/testHub/' + this.testHubId + "/" + key)
+    },
+    async getTestHub() {
+      let resp = await TestHubApi.getTestHub(this.testHubId)
+      if (resp.success == true) {
+        this.testHub = resp.data
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
+
+    showAddDialog() {
+      this.showTestPlanDailogFlag = true
+      this.editTestPlanId = 0
+    },
+    showEditDialog(testPlan) {
+      this.editTestPlanId = testPlan.id
+      this.showTestPlanDailogFlag = true
+
+    },
+    closeAddEDitDialog() {
+      this.showTestPlanDailogFlag = false
+      this.getTestPlanList()
+    },
+    showDeleteDialog(testPlan) {
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        TestHubApi.deleteTestPlan(testPlan.id).then(resp => {
+          if (resp.success == true) {
+            this.$message.success("删除成功！")
+            this.getTestPlanList()
+          } else {
+            this.$message.error("删除失败！");
+          }
+        })
+      }).catch(() => {
+      });
+    },
+    //初始化测试计划列表列表
+    async getTestPlanList() {
+      this.loading = true
+      this.query['hTestHubId'] = this.testHubId
+      const resp = await TestHubApi.getTestPlanList(this.query)
+      if (resp.success == true) {
+        this.tableData = resp.data.testPlanList
+        this.total = resp.data.total
+      } else {
+        this.$message.error(resp.error.message);
+      }
+      this.loading = false
+    },
+    gotoTestPlan() {
+    },
+
+    // 修改每页显示个数
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.query.size = val
+      this.getTestPlanList()
+    },
+
+    // 点给第几页
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.query.page = val
+      this.getTestPlanList()
+    }
+  }
+}
+</script>
+
+<!--全局的，优先级非常高-->
+<style>
+#case-menu .el-menu.el-menu--horizontal {
+  border-bottom: none !important;
+}
+</style>
+
+<!--局部的，优先级很低-->
+<style scoped>
+.testplan-filter-line {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.foot-page {
+  text-align: right;
+}
+</style>

@@ -45,9 +45,13 @@ class Error:
     TESTCASEMODULE_OBJECT_NULL = {"10081": "测试库模块对象不存在"}
     TESTCASEMODULE_DELETE_ERROR = {"10082": "测试库模块删除失败"}
 
-    TESTCASE_ID_NULL = {"10070": "测试用例id不存在"}
-    TESTCASE_OBJECT_NULL = {"10071": "测试用例对象不存在"}
-    TESTCASE_DELETE_ERROR = {"10072": "测试用例删除失败"}
+    TESTCASE_ID_NULL = {"10090": "测试用例id不存在"}
+    TESTCASE_OBJECT_NULL = {"10091": "测试用例对象不存在"}
+    TESTCASE_DELETE_ERROR = {"10092": "测试用例删除失败"}
+
+    TESTPLAN_ID_NULL = {"10100": "测试计划id不存在"}
+    TESTPLAN_OBJECT_NULL = {"10101": "测试计划对象不存在"}
+    TESTPLAN_DELETE_ERROR = {"10192": "测试计划删除失败"}
 
 def response_fail(error=""):
     """
