@@ -1,22 +1,50 @@
 <template>
-  <div class="task-dialog">
-    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestPlan()">
+  <div class="test-plan-dialog">
+    <el-dialog :title=showTitle :visible.sync="showStatus" @close="cancelTestPlan()" width="450px">
       <el-form :rules="rules" ref="elForm" :model="form" label-width="80px">
         <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="form.name" style="width: 300px"></el-input>
         </el-form-item>
-        <el-form-item label="测试库" prop="flag">
-          <el-input v-model="form.flag"></el-input>
+
+        <el-form-item label="负责人" prop="owner_id">
+          <el-select v-model="form.owner_id" placeholder="请选择" style="width: 300px">
+            <el-option
+                v-for="item in users"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+            </el-option>
+          </el-select>
+
         </el-form-item>
-        <el-form-item label="负责人">
-          <el-input type="textarea" v-model="form.describe"></el-input>
+
+        <el-form-item label="开始时间" prop="start_date">
+          <el-date-picker
+              style="width: 300px"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              v-model="form.start_date"
+              align="right"
+              type="date"
+              placeholder="开始时间">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="开始时间" prop="flag">
-          <el-input v-model="form.flag"></el-input>
+        <el-form-item label="结束时间" prop="end_date">
+          <el-date-picker
+              style="width: 300px"
+              v-model="form.end_date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              align="right"
+              type="date"
+              placeholder="结束时间">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="结束时间" prop="flag">
-          <el-input v-model="form.flag"></el-input>
+
+        <el-form-item label="测试库">
+          {{testHub.name}}
         </el-form-item>
+
         <el-form-item>
           <div class="dialog-footer">
             <el-button @click="cancelTestPlan()">取消</el-button>
@@ -35,6 +63,8 @@ export default {
   props: ['testPlanId', 'testHubId'],
   data() {
     return {
+      testHub:{},
+      users: [],
       showStatus: true,
       showTitle: '',
       form: {
@@ -59,7 +89,7 @@ export default {
           {required: true, message: '请输入开始时间', trigger: 'blur'}
         ],
         end_date: [
-          {required: true, message: '请输入结束', trigger: 'blur'}
+          {required: true, message: '请输入结束时间', trigger: 'blur'}
         ],
       },
       inResize: true,
@@ -68,11 +98,29 @@ export default {
   },
   created() {
     this.init()
+    this.getTestHub();
+    this.getUsers();
   },
   mounted() {
   },
   methods: {
-    async init(){
+    async getUsers() {
+      let resp = await TestHubApi.getUsers()
+      if (resp.success == true) {
+        this.users = resp.data
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
+    async getTestHub() {
+      let resp = await TestHubApi.getTestHub(this.testHubId)
+      if (resp.success == true) {
+        this.testHub = resp.data
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
+    async init() {
       if (this.testPlanId === 0) {
         this.showTitle = "创建测试计划"
         this.form.id = 0
@@ -107,7 +155,7 @@ export default {
     onSubmit() {
       this.$refs.elForm.validate((valid) => {
         if (valid) {
-          if(this.testPlanId === 0) {
+          if (this.testPlanId === 0) {
             TestHubApi.createTestPlan(this.form).then(resp => {
               if (resp.success == true) {
                 this.$message.success("创建成功！")
@@ -150,5 +198,8 @@ export default {
 .div-tree {
   max-height: 180px;
   overflow: auto;
+}
+.test-plan-dialog{
+  text-align: left;
 }
 </style>

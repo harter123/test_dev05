@@ -66,9 +66,13 @@ class HTestPlanViewSet(ModelBaseViewSet):
         """
         page = request.query_params.get("page", "1")
         size = request.query_params.get("size", "5")
-        name = request.query_params.get("name", "")
+        name = request.query_params.get("keyword", "")
         status_id = request.query_params.get("statusId", 0)
         test_hub_id = request.query_params.get("hTestHubId", 0)  #
+
+        status_id = int(status_id)
+        test_hub_id = int(test_hub_id)
+
         if not test_hub_id:
             return self.response_success(success=False, error=self.TESTHUB_ID_NULL)
 
@@ -80,8 +84,11 @@ class HTestPlanViewSet(ModelBaseViewSet):
         if status_id:
             query['status_id'] = status_id
 
+        print(query)
+
         # ** 等于是把字典平铺开来，例如 query = {"a1"：1，”b1“: 2},平铺开来九食 a1=1,b1=2
         test_plans = HTestPlan.objects.filter(is_delete=False, **query)
+        print(test_plans)
         pg = Pagination()
         page_data = pg.paginate_queryset(queryset=test_plans, request=request, view=self)
         ser = HTestPlanViewSerializer(instance=page_data, many=True)
@@ -124,4 +131,16 @@ class HTestPlanViewSet(ModelBaseViewSet):
 
         # 数据的序列化，返回给前端
         ser = HTestPlanViewSerializer(test_plan)
-        return self.response_success(data=ser.data)
+        ret = ser.data
+        all_num = ret['success_num'] + ret['failed_num'] + ret['skip_num'] + ret['block_num']
+        if all_num == 0:  # 分母不能是0，所以需要做异常处理
+            ret["runRate"] = 0
+        else:
+            ret["runRate"] = (ret['skip_num'] * 100) / all_num
+
+        run_num = ret['success_num'] + ret['failed_num'] + ret['block_num']
+        if run_num == 0:
+            ret["successRate"] = 0
+        else:
+            ret["successRate"] = (ret['success_num'] * 100) / run_num
+        return self.response_success(data=ret)

@@ -45,14 +45,21 @@ class LoginView(APIView):
         return response_success()
 
 
+class UsersView(APIView):
+    #  这个接口的调用不能加认证
+    authentication_classes = []
 
-
-
-
-
-
-
-
-
-
-
+    def get(self, request):
+        """
+        登录账号，并获取token
+        """
+        users = User.objects.filter(is_active=True)
+        ret = []
+        for u in users:
+            tmp = {
+                "id": u.id,
+                "name": u.username
+            }
+            ret.append(tmp)
+        # ret = [{"id": u.id, "name": u.username} for u in users]
+        return response_success(data=ret)

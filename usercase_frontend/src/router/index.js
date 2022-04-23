@@ -10,6 +10,7 @@ import ReportList from '../components/report/ReportList.vue'
 import HTestHubList from '../components/testhub/hTesthub/HTestHubList'
 import HTestCaseList from '../components/testhub/hTesthub/HTestCase/HTestCaseList'
 import HTestPlanList from "../components/testhub/hTesthub/HTestPlan/HTestPlanList";
+import HTestPlanDetail from "../components/testhub/hTesthub/HTestPlan/HTestPlanDetail";
 
 Vue.use(VueRouter)
 
@@ -61,6 +62,10 @@ const routes = [
       {
         path: 'testhub/:testhubId(\\d+)+/testplan',
         component: HTestPlanList,
+      },
+      {
+        path: 'testhub/:testhubId(\\d+)+/testplan/:testPlanId(\\d+)+',
+        component: HTestPlanDetail,
       }
     ]
   },

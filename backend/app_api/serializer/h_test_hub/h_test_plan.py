@@ -14,7 +14,8 @@ class HTestPlanViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = HTestPlan
         fields = ['id', 'name', 'h_test_hub_id', 'status_id', 'start_date', 'end_date', "owner_id", 'creator_id',
-                  "owner_name", 'create_time', 'creator_name', ]  # 要显示的字段
+                  "owner_name", 'create_time', 'creator_name', 'success_num', 'failed_num', 'skip_num',
+                  'block_num']  # 要显示的字段
 
 
 # 用来做参数检验，以及数据创建

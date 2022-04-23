@@ -24,6 +24,7 @@
             <el-input
                 :clearable="true"
                 @change="getTestPlanList()"
+                @keyup.enter.native="getTestPlanList"
                 style="width: 200px;margin-right: 10px"
                 placeholder="请输入搜索内容"
                 prefix-icon="el-icon-search"
@@ -55,27 +56,39 @@
 
         <div id="test-plan-id">
           <!-- 表格 -->
-          <el-table id="test-plan-table-id" :data="tableData" v-loading="loading" style="width: 100%">
+          <el-table id="test-plan-table-id" :data="tableData" v-loading="loading" style="width: 100%;overflow-y: auto" >
             <el-table-column prop="name" label="名称" min-width="30%">
               <template slot-scope="scope">
                 <div style="display: flex; align-items: center">
                   <img width="15px" height="15px" class="app-icon"
                        src="https://cdn.pingcode.com/static/portal/assets/app-icons/app-testhub-square-fill.svg?v=3.62.2">
-                  <a style="line-height: 15px;font-weight: normal; margin-left: 5px" @click="gotoTestPlan(scope.row.id)"
+                  <a style="line-height: 15px;font-weight: normal; margin-left: 5px" @click="gotoTestPlan(scope.row)"
                      href="javascript:void(0)">{{ scope.row.name }}</a>
                 </div>
 
               </template>
             </el-table-column>
-            <el-table-column prop="flag" label="状态" min-width="10%">
+            <el-table-column prop="status_id" label="状态" min-width="10%">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.status_id">
+                </span>
+                <el-tag v-else :type="getStatus(scope.row.status_id).type" size="small">
+                  {{ getStatus(scope.row.status_id).name }}
+                </el-tag>
+
+              </template>
             </el-table-column>
             <el-table-column prop="h_test_plan_num" label="结果" min-width="10%">
             </el-table-column>
-            <el-table-column prop="creator_name" label="创建人" min-width="15%">
+            <el-table-column prop="creator_name" label="创建人" min-width="10%">
             </el-table-column>
-            <el-table-column prop="creator_name" label="负责人" min-width="15%">
+            <el-table-column prop="owner_name" label="负责人" min-width="10%">
             </el-table-column>
-            <el-table-column prop="create_time" label="时间" min-width="15%">
+            <el-table-column prop="create_time" label="时间" min-width="20%">
+              <template slot-scope="scope">
+                {{ scope.row.start_date }} 到 {{ scope.row.end_date }}
+
+              </template>
             </el-table-column>
             <el-table-column fixed="right" label="操作" width="100">
               <template slot-scope="scope">
@@ -91,7 +104,7 @@
             <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :page-sizes="[5, 10, 20, 50]"
+                :page-sizes="[10, 20, 50, 10]"
                 :page-size=query.size
                 background
                 layout="total, sizes, prev, pager, next"
@@ -105,7 +118,7 @@
     <testPlanDialog v-if="showTestPlanDailogFlag"
                     :test-hub-id="testHubId"
                     @cancel="showTestPlanDailogFlag=false"
-                    @sucess="closeAddEDitDialog"
+                    @success="closeAddEDitDialog"
                     :test-plan-id="editTestPlanId">
 
     </testPlanDialog>
@@ -136,8 +149,8 @@ export default {
       total: 0,
       query: {
         page: 1,
-        size: 5,
-        name: "",
+        size: 10,
+        keyword: "",
         statusId: undefined,
         hTestHubId: 0
       },
@@ -181,7 +194,6 @@ export default {
     showEditDialog(testPlan) {
       this.editTestPlanId = testPlan.id
       this.showTestPlanDailogFlag = true
-
     },
     closeAddEDitDialog() {
       this.showTestPlanDailogFlag = false
@@ -210,14 +222,15 @@ export default {
       this.query['hTestHubId'] = this.testHubId
       const resp = await TestHubApi.getTestPlanList(this.query)
       if (resp.success == true) {
-        this.tableData = resp.data.testPlanList
+        this.tableData = resp.data.TestPlanList
         this.total = resp.data.total
       } else {
         this.$message.error(resp.error.message);
       }
       this.loading = false
     },
-    gotoTestPlan() {
+    gotoTestPlan(data) {
+      this.$router.push('/main/testHub/' + this.testHubId + "/testplan/" + data.id)
     },
 
     // 修改每页显示个数

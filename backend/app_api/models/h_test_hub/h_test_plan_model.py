@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from app_api.models.h_test_hub.h_test_case_model import HTestCase
 from app_api.models.h_test_hub.h_test_hub_model import HTestHub
 
 
@@ -19,5 +20,17 @@ class HTestPlan(models.Model):
     update_time = models.DateTimeField("更新时间", auto_now=True)
     create_time = models.DateTimeField("创建时间", auto_now_add=True)
 
+    success_num = models.IntegerField("成功个数", default=0)
+    failed_num = models.IntegerField("失败个数", default=0)
+    skip_num = models.IntegerField("跳过个数", default=0)
+    block_num = models.IntegerField("阻塞个数", default=0)
+
     def __str__(self):
         return self.name
+
+
+class HTestPlanRelateTestCase(models.Model):
+    h_test_plan = models.ForeignKey(HTestPlan, on_delete=models.CASCADE)
+    h_test_case = models.ForeignKey(HTestCase, on_delete=models.CASCADE)
+
+    run_status_id = models.IntegerField("执行状态", default=1)

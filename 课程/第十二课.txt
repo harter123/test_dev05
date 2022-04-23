@@ -1,0 +1,43 @@
+内容：
+1.完成测试计划的增删改查
+2.完成部分的测试计划用例管理
+
+日期控件有两个格式
+
+format代表是在前端展示用的格式
+value-format 代表是后端的格式
+<el-date-picker
+              style="width: 300px"
+              v-model="form.end_date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              align="right"
+              type="date"
+              placeholder="结束时间">
+          </el-date-picker>
+		  
+		  
+@keyup.enter.native="getTestPlanList"   这代表是点击enter就触发的事件
+<el-input
+                :clearable="true"
+                @change="getTestPlanList()"
+                @keyup.enter.native="getTestPlanList"
+                style="width: 200px;margin-right: 10px"
+                placeholder="请输入搜索内容"
+                prefix-icon="el-icon-search"
+                v-model="query.keyword">
+            </el-input>
+			
+			
+规划用例：
+测试计划跟测试用例是一对多的关系
+
+测试计划添加这些字段
+    success_num = models.IntegerField("成功个数", default=0)
+    failed_num = models.IntegerField("失败个数", default=0)
+    skip_num = models.IntegerField("跳过个数", default=0)
+    block_num = models.IntegerField("阻塞个数", default=0)
+	
+	
+覆盖率 = skip_num / (success_num + failed_num +  skip_num + block_num) * 100
+通过率 = success_num / (success_num + failed_num + block_num) * 100

@@ -88,6 +88,10 @@ class TestHubApi {
     updateTestPlan(pid, data) {
         return request.put('/v1/testplan/'+pid+'/', data)
     }
+
+    getUsers() {
+        return request.get('/v1/users/')
+    }
   }
   
   export default new TestHubApi()
