@@ -39,13 +39,36 @@
             width="200"
             trigger="hover">
           <div>
-            成功：{{testPlan.success_num}}
-            失败：{{testPlan.failed_num}}
-            跳过：{{testPlan.skip_num}}
-            阻塞：{{testPlan.block_num}}
+            <div class="common-flex">
+              <div>成功&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.success_num" :stroke-width="18" :text-inside="true"
+                             status="success"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>跳过&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.skip_num" :stroke-width="18" :text-inside="true"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>阻塞&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.block_num" :stroke-width="18" :text-inside="true"
+                             status="warning"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>失败&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.failed_num" :stroke-width="18" :text-inside="true"
+                             status="exception"></el-progress>
+              </div>
+            </div>
           </div>
           <div slot="reference">
-            覆盖率: {{testPlan.runRate}}
+            覆盖率: {{ testPlan.runRate }} %
           </div>
         </el-popover>
 
@@ -57,13 +80,36 @@
             width="200"
             trigger="hover">
           <div>
-            成功：{{testPlan.success_num}}
-            失败：{{testPlan.failed_num}}
-            跳过：{{testPlan.skip_num}}
-            阻塞：{{testPlan.block_num}}
+            <div class="common-flex">
+              <div>成功&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.success_num" :stroke-width="18" :text-inside="true"
+                             status="success"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>跳过&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.skip_num" :stroke-width="18" :text-inside="true"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>阻塞&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.block_num" :stroke-width="18" :text-inside="true"
+                             status="warning"></el-progress>
+              </div>
+            </div>
+            <div class="common-flex">
+              <div>失败&nbsp;</div>
+              <div class="common-width">
+                <el-progress :percentage="testPlan.failed_num" :stroke-width="18" :text-inside="true"
+                             status="exception"></el-progress>
+              </div>
+            </div>
           </div>
           <div slot="reference">
-            通过率: {{testPlan.successRate}}
+            通过率: {{ testPlan.successRate }} %
           </div>
         </el-popover>
       </div>
@@ -84,33 +130,11 @@
         </div>
 
         <el-tree :data="moduleTree" :props="defaultProps" @node-click="handleNodeClick">
-          <div class="custom-tree-node" slot-scope="{ node, data }">
-
+          <div class="custom-tree-node" slot-scope="{ node }">
             <span>{{ node.label }}</span>
-            <span>
-<!--            <i class="el-icon-plus" style="margin-left:4px;font-size: 14px;color: dodgerblue" @click.prevent.stop="showAddModuleDialog(0, data.id)"></i>-->
-              <!--            <i class="el-icon-edit" style="margin-left:4px;font-size: 14px;color: limegreen" @click.prevent.stop="showEditModuleDialog(data.id)"></i>-->
-              <!--            <i class="el-icon-delete" style="margin-left:4px;font-size: 14px;color: orangered" @click.prevent.stop="showDeleteModuleDialog(data.id)"></i>-->
-            <el-dropdown @command="handleCommand">
-              <span class="el-dropdown-link">
-                <i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item :command="{'type': 'add', 'data': data}">添加</el-dropdown-item>
-                <el-dropdown-item :command="{'type': 'edit', 'data': data}">编辑</el-dropdown-item>
-                <el-dropdown-item :command="{'type': 'delete', 'data': data}">删除</el-dropdown-item>
-
-              </el-dropdown-menu>
-            </el-dropdown>
-          </span>
-
-
           </div>
 
         </el-tree>
-        <el-button type="text" icon="el-icon-plus" style="float: left; padding-left: 5px"
-                   @click="showAddModuleDialog(0, 0)">新建模块
-        </el-button>
       </el-card>
       <el-card class="box-card" style="width: 75%;overflow: auto">
         <div>
@@ -132,7 +156,7 @@
               <template slot-scope="scope">
                 <a href="javascript:void(0)"
                    style="color: #409EFF; font-weight: normal; display: flex; align-items: center"
-                   @click="showTestCase(scope.row.id)">
+                   @click="showTestCase(scope.row.h_test_case_id)">
                   <svg style="width: 15px; height: 15px" t="1648959546637" class="icon" viewBox="0 0 1024 1024"
                        version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="43792" width="200" height="200">
                     <path
@@ -145,14 +169,24 @@
             </el-table-column>
             <el-table-column
                 prop="status_id"
-                label="状态"
+                label="执行状态"
                 width="100">
               <template slot-scope="scope">
-                <span v-if="!scope.row.status_id">
-                </span>
-                <el-tag v-else :type="getStatus(scope.row.status_id).type" size="small">
-                  {{ getStatus(scope.row.status_id).name }}
-                </el-tag>
+
+                <el-dropdown trigger="click" @command="handleCommandStatus">
+                  <span class="el-dropdown-link" style="cursor: pointer">
+                    <el-tag :type="getStatus(scope.row.run_status_id).type" size="small">{{
+                        getStatus(scope.row.run_status_id).name
+                      }}</el-tag>
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item v-for="item in getRunStatusList()" :key="item.id"
+                                      :command="{'id': scope.row.id, 'run_status_id': item.id}">
+                      <el-tag :type="item.type" size="small">{{ item.name }}</el-tag>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
 
               </template>
             </el-table-column>
@@ -236,8 +270,9 @@ export default {
         page: 1,
         size: 5,
         total: 0,
+        hTestPlanId: 0,
         hTestHubId: 0,
-        HModuleIds: "all"
+        hModuleId: "0"
       },
       recentTestHubList: [],
       activeIndex: "testplan",
@@ -263,13 +298,25 @@ export default {
     this.getTestHubModuleList()
     this.getTestHub()
     this.getTestPlan()
-    // this.getTestCase()
+    this.getTestCase()
 
     this.moduleHeight = document.body.clientHeight - 100
     document.getElementById('case-menu-module').style.height = this.moduleHeight + 'px'
   },
   methods: {
-    back(){
+    async updateTestPlanCase(rid, data) {
+      let resp = await TestHubApi.updateTestPlanTestCase(rid, data)
+      if (resp.success == true) {
+        this.getTestCase()
+      } else {
+        this.$message.error(resp.error.message);
+      }
+    },
+    handleCommandStatus(command) {
+      let params = {"run_status_id": command.run_status_id}
+      this.updateTestPlanCase(command.id, params)
+    },
+    back() {
       this.$router.back()
     },
     async getTestPlan() {
@@ -281,12 +328,13 @@ export default {
       }
     },
     showDeleteDialog(data) {
-      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+      this.$confirm('此操作将永久移除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        TestHubApi.deleteTestCase(data.id).then(resp => {
+        // 这个ip是关联表的id
+        TestHubApi.deleteTestPlanTestCase(data.id).then(resp => {
           if (resp.success == true) {
             this.$message.success("删除成功！")
             this.getTestCase()
@@ -302,7 +350,7 @@ export default {
       this.testCaseId = testCaseId
     },
     getAllTestCase() {
-      this.query.HModuleIds = "all"
+      this.query.hModuleId = "0"
       this.getTestCase()
     },
     openAddCaseDialog() {
@@ -316,21 +364,11 @@ export default {
       this.addCaseDialogFlag = false
       this.getTestCase()
     },
-    handleCommand(command) {
-      switch (command.type) {
-        case 'add':
-          this.showAddModuleDialog(0, command.data.id)
-          break;
-        case 'edit':
-          this.showEditModuleDialog(command.data.id)
-          break;
-        case 'delete':
-          this.showDeleteModuleDialog(command.data.id)
-          break;
-      }
-    },
     getStatus(statusID) {
       return HTestCaseMap.getTestPlanStatus(statusID)
+    },
+    getRunStatusList() {
+      return HTestCaseMap.getTestPlanStatusList()
     },
     getPriority(priorityId) {
       return HTestCaseMap.getPriority(priorityId)
@@ -347,45 +385,11 @@ export default {
       }
     },
     handleNodeClick(data) {
-      this.query.HModuleIds = data.id
+      this.query.hModuleId = data.id
       this.getTestCase()
     },
     handleSelect(key) {
       this.$router.push('/main/testHub/' + this.testHubId + "/" + key)
-    },
-    showAddModuleDialog(moduleId, parentId) {
-      this.testModuleId = moduleId
-      this.testModuleParentId = parentId
-      this.showTestModuleDialogFlag = true
-    },
-    showEditModuleDialog(moduleId) {
-      this.testModuleId = moduleId
-      this.showTestModuleDialogFlag = true
-    },
-    showDeleteModuleDialog(testModuleId) {
-      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        TestHubApi.deleteTestCaseModule(testModuleId).then(resp => {
-          if (resp.success == true) {
-            this.$message.success("删除成功！")
-            this.getTestHubModuleList()
-          } else {
-            this.$message.error("删除失败！");
-          }
-        })
-      }).catch(() => {
-      });
-    },
-    // 子组件的回调
-    cancelModule() {
-      this.showTestModuleDialogFlag = false
-    },
-    successModule() {
-      this.showTestModuleDialogFlag = false
-      this.getTestHubModuleList()
     },
 
     //初始化测试库列表列表
@@ -399,9 +403,10 @@ export default {
     },
     //初始化最近测试库列表列表
     async getTestCase() {
+      this.query.hTestPlanId = this.testPlanId
       this.query.hTestHubId = this.testHubId
 
-      const resp = await TestHubApi.getTestCaseList(this.query)
+      const resp = await TestHubApi.getTestPlanTestCaseList(this.query)
       if (resp.success == true) {
         this.testCaseList = resp.data.testCaseList;
         this.query.total = resp.data.total
@@ -505,4 +510,13 @@ export default {
   margin-bottom: 20px;
 }
 
+.common-flex {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+}
+
+.common-width {
+  width: 150px;
+}
 </style>

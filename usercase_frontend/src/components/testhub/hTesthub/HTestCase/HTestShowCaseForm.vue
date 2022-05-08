@@ -13,7 +13,7 @@
     </div>
     <hr style="height:1px;border:none;border-top:1px solid #C0C4CC;"/>
     <div class="h-case-form-title">
-      <el-input v-model="form.title"></el-input>
+      <el-input v-model="form.title" @blur="handleChangeTitle"></el-input>
     </div>
     <div style="display: flex; justify-content: space-between; margin-top: 5px">
       <div class="h-case-form-rich-p">
@@ -210,6 +210,10 @@ export default {
     handleChangeModule(value) {
       let moduleId = value[value.length - 1]
       let params = {"h_test_module_id": moduleId}
+      this.updateTestCase(params)
+    },
+    handleChangeTitle() {
+      let params = {"title": this.form.title}
       this.updateTestCase(params)
     },
     handleChangePre() {

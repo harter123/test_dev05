@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework import routers
 
 from app_api.views.h_test_hub.h_test_hub_recent_visited_view import HTestHubRecentVisitedViewSet
-from app_api.views.h_test_hub.h_test_plan_view import HTestPlanViewSet
+from app_api.views.h_test_hub.h_test_plan_view import HTestPlanViewSet, HTestPlanTestCaseViewSet
 from app_api.views.user_views import LoginView,UsersView
 from app_api.views.register_views import RegisterView
 from app_api.views.project_view import ProjectView, ProjectModuleView
@@ -36,6 +36,7 @@ router.register(r'v1/result', ResultViewSet)  # 结果管理
 router.register(r'v1/testmodule', HTestCaseModuleViewSet)  # 测试库模块管理
 router.register(r'v1/testhub', HTestHubViewSet)  # 测试库管理
 router.register(r'v1/testcase', HTestCaseViewSet)  # 测试用例管理
+router.register(r'v1/testplan/testcase', HTestPlanTestCaseViewSet)  # 测试计划用例管理
 router.register(r'v1/testplan', HTestPlanViewSet)  # 测试计划管理
 router.register(r'v1/recent/testhub', HTestHubRecentVisitedViewSet, basename="recent")  # 测试库管理
 

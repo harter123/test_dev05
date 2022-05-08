@@ -1,13 +1,14 @@
 const statusList = [
-    {"id": 1, 'name': "未通过", "type": "warning"},
-    {"id": 2, 'name': "通过", "type": "success"}
+    {"id": 1, 'name': "未审核", "type": "warning"},
+    {"id": 2, 'name': "已审核", "type": "success"}
 ]
 
 const testPlanStatusList = [
-    {"id": 1, 'name': "未开始", "type": "danger"},
-    {"id": 2, 'name': "进行中", "type": "warning"},
-    {"id": 3, 'name': "已完成", "type": "success"},
-    {"id": 0, 'name': "全部", "type": "info"}
+    {"id": 1, 'name': "未开始", "type": "info"},
+    {"id": 2, 'name': "阻塞", "type": "warning"},
+    {"id": 3, 'name': "通过", "type": "success"},
+    {"id": 4, 'name': "跳过", "type": "info"},
+    {"id": 5, 'name': "失败", "type": "danger"}
 ]
 
 

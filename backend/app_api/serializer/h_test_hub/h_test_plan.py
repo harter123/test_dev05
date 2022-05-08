@@ -1,7 +1,7 @@
 import datetime
 from rest_framework import serializers
 # 只是用来做序列化
-from app_api.models.h_test_hub.h_test_plan_model import HTestPlan
+from app_api.models.h_test_hub.h_test_plan_model import HTestPlan, HTestPlanRelateTestCase
 
 
 class HTestPlanViewSerializer(serializers.ModelSerializer):
@@ -86,5 +86,53 @@ class HTestPlanUpdateValidator(HTestPlanValidator):
             instance.update_time = datetime.datetime.now()
         if not instance.create_time:
             instance.create_time = datetime.datetime.now()
+        instance.save()
+        return instance
+
+
+# 只是用来做序列化
+class HTestPlanTestCaseViewSerializer(serializers.ModelSerializer):
+    creator_name = serializers.CharField(source="h_test_case.creator.username")  # 反向获取用户的名称
+    create_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S',
+                                            source="h_test_case.create_time")  # 日期格式化
+    title = serializers.CharField(source="h_test_case.title")  # 反向获取用户的名称
+    pre_step = serializers.CharField(source="h_test_case.pre_step")  # 反向获取用户的名称
+    step = serializers.CharField(source="h_test_case.step")  # 反向获取用户的名称
+    post_step = serializers.CharField(source="h_test_case.post_step")  # 反向获取用户的名称
+    expect = serializers.CharField(source="h_test_case.expect")  # 反向获取用户的名称
+    status_id = serializers.IntegerField(source="h_test_case.status_id")  # 反向获取用户的名称
+    priority_id = serializers.IntegerField(source="h_test_case.priority_id")  # 反向获取用户的名称
+    type_id = serializers.IntegerField(source="h_test_case.type_id")  # 反向获取用户的名称
+    h_test_hub_id = serializers.IntegerField(source="h_test_case.h_test_hub_id")  # 反向获取用户的名称
+    h_test_module_id = serializers.IntegerField(source="h_test_case.h_test_module_id")  # 反向获取用户的名称
+
+    h_test_case_id = serializers.IntegerField()  # 反向获取用户的名称
+    h_test_plan_id = serializers.IntegerField()  # 反向获取用户的名称
+    run_status_id = serializers.IntegerField()  # 反向获取用户的名称
+
+    class Meta:
+        model = HTestPlanRelateTestCase
+        fields = ['id', 'title', 'pre_step', 'step', 'post_step', "expect", 'create_time', 'creator_name',
+                  'status_id', 'priority_id', 'type_id', 'h_test_hub_id', 'h_test_module_id', 'h_test_plan_id',
+                  'h_test_case_id', 'run_status_id']  # 要显示的字段
+
+
+# 用来做参数检验，以及数据编辑
+class HTestPlanTestCaseUpdateValidator(serializers.Serializer):
+    """
+    测试计划和测试用例关联表的验证器
+    """
+    run_status_id = serializers.IntegerField(required=True)
+
+    def create(self, validated_data):
+        return None
+
+    def update(self, instance, validated_data):
+        """
+        更新
+        instance - 更新的对象 - 从数据库里查出来的
+        validated_data - 更新的数据
+        """
+        instance.run_status_id = validated_data.get("run_status_id", instance.run_status_id)
         instance.save()
         return instance

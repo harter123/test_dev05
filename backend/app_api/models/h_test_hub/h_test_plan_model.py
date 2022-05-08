@@ -29,7 +29,7 @@ class HTestPlan(models.Model):
         return self.name
 
 
-class HTestPlanRelateTestCase(models.Model):
+class HTestPlanRelateTestCase(models.Model):  # 多对多的关系
     h_test_plan = models.ForeignKey(HTestPlan, on_delete=models.CASCADE)
     h_test_case = models.ForeignKey(HTestCase, on_delete=models.CASCADE)
 

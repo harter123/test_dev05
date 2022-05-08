@@ -1,0 +1,6 @@
+
+test_plan_test_case = HTestPlanRelateTestCase.objects.filter(
+h_test_plan_id=test_plan_id, h_test_case__h_test_module_id=module_id)
+
+django里面的外键查询快捷方式
+我们可以使用__的方式，来查询指定外键表的特定的属性

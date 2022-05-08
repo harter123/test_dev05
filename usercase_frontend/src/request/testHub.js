@@ -3,28 +3,29 @@ import request from '@/HttpCommon.js'
 
 class TestHubApi {
     getTestHubList(data) {
-      return request.get('/v1/testhub/', data)
+        return request.get('/v1/testhub/', data)
     }
 
     getTestHub(tid) {
-      return request.get('/v1/testhub/'+tid+'/')
+        return request.get('/v1/testhub/' + tid + '/')
     }
 
     deleteTestHub(tid) {
-      return request.delete('/v1/testhub/'+tid+'/')
+        return request.delete('/v1/testhub/' + tid + '/')
     }
-  
+
     createTestHub(data) {
-      return request.post('/v1/testhub/', data)
+        return request.post('/v1/testhub/', data)
     }
-  
+
     updateTestHub(tid, data) {
-      return request.put('/v1/testhub/'+tid+'/', data)
+        return request.put('/v1/testhub/' + tid + '/', data)
     }
 
     getRecentTestHubList() {
         return request.get('/v1/recent/testhub/')
     }
+
     createRecentTestHub(data) {
         return request.post('/v1/recent/testhub/', data)
     }
@@ -34,11 +35,11 @@ class TestHubApi {
     }
 
     getTestCaseModule(tid) {
-        return request.get('/v1/testmodule/'+tid+'/')
+        return request.get('/v1/testmodule/' + tid + '/')
     }
 
     deleteTestCaseModule(tid) {
-        return request.delete('/v1/testmodule/'+tid+'/')
+        return request.delete('/v1/testmodule/' + tid + '/')
     }
 
     createTestCaseModule(data) {
@@ -46,7 +47,7 @@ class TestHubApi {
     }
 
     updateTestCaseModule(tid, data) {
-        return request.put('/v1/testmodule/'+tid+'/', data)
+        return request.put('/v1/testmodule/' + tid + '/', data)
     }
 
     getTestCaseList(data) {
@@ -54,11 +55,11 @@ class TestHubApi {
     }
 
     getTestCase(tid) {
-        return request.get('/v1/testcase/'+tid+'/')
+        return request.get('/v1/testcase/' + tid + '/')
     }
 
     deleteTestCase(tid) {
-        return request.delete('/v1/testcase/'+tid+'/')
+        return request.delete('/v1/testcase/' + tid + '/')
     }
 
     createTestCase(data) {
@@ -66,7 +67,7 @@ class TestHubApi {
     }
 
     updateTestCase(tid, data) {
-        return request.put('/v1/testcase/'+tid+'/', data)
+        return request.put('/v1/testcase/' + tid + '/', data)
     }
 
     getTestPlanList(data) {
@@ -74,11 +75,11 @@ class TestHubApi {
     }
 
     getTestPlan(pid) {
-        return request.get('/v1/testplan/'+pid+'/')
+        return request.get('/v1/testplan/' + pid + '/')
     }
 
     deleteTestPlan(pid) {
-        return request.delete('/v1/testplan/'+pid+'/')
+        return request.delete('/v1/testplan/' + pid + '/')
     }
 
     createTestPlan(data) {
@@ -86,12 +87,25 @@ class TestHubApi {
     }
 
     updateTestPlan(pid, data) {
-        return request.put('/v1/testplan/'+pid+'/', data)
+        return request.put('/v1/testplan/' + pid + '/', data)
     }
 
     getUsers() {
         return request.get('/v1/users/')
     }
-  }
-  
-  export default new TestHubApi()
+
+    getTestPlanTestCaseList(data) {
+        return request.get('/v1/testplan/testcase/', data)
+    }
+
+    deleteTestPlanTestCase(rid) {
+        return request.delete('v1/testplan/testcase/' + rid + '/')
+    }
+
+    updateTestPlanTestCase(rid, data) {
+        return request.put('/v1/testplan/testcase/' + rid + '/', data)
+    }
+
+}
+
+export default new TestHubApi()

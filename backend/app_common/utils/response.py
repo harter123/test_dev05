@@ -53,6 +53,10 @@ class Error:
     TESTPLAN_OBJECT_NULL = {"10101": "测试计划对象不存在"}
     TESTPLAN_DELETE_ERROR = {"10192": "测试计划删除失败"}
 
+    TESTPLANTESTCASE_ID_NULL = {"10200": "测试计划用例关联id不存在"}
+    TESTPLANESTCASE_OBJECT_NULL = {"10201": "测试计划用例关联对象不存在"}
+    TESTPLANESTCASE_DELETE_ERROR = {"10292": "测试计划用例关联删除失败"}
+
 def response_fail(error=""):
     """
     返回失败, 主要用于参数验证失败
