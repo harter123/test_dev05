@@ -1,6 +1,7 @@
 from app_api.models.h_test_hub.h_test_plan_model import HTestPlan, HTestPlanRelateTestCase
 from app_api.serializer.h_test_hub.h_test_plan import HTestPlanValidator, HTestPlanViewSerializer, \
-    HTestPlanUpdateValidator, HTestPlanTestCaseViewSerializer, HTestPlanTestCaseUpdateValidator
+    HTestPlanUpdateValidator, HTestPlanTestCaseViewSerializer, HTestPlanTestCaseUpdateValidator, \
+    HTestPlanTestCaseCreateValidator
 from app_api.views.h_test_hub.h_test_case_module_view import make_module_tree
 from app_api.views.h_test_hub.h_test_case_view import get_target_from_tree, get_all_module_children_ids
 from app_common.utils.pagination import Pagination
@@ -131,23 +132,44 @@ class HTestPlanViewSet(ModelBaseViewSet):
         # 数据的序列化，返回给前端
         ser = HTestPlanViewSerializer(test_plan)
         ret = ser.data
-        all_num = ret['success_num'] + ret['failed_num'] + ret['skip_num'] + ret['block_num']
+        all_num = ret['success_num'] + ret['failed_num'] + ret['skip_num'] + ret['block_num'] + ret["not_start_num"]
         run_num = ret['success_num'] + ret['failed_num'] + ret['block_num']
         if all_num == 0:  # 分母不能是0，所以需要做异常处理
             ret["runRate"] = 0
         else:
             ret["runRate"] = (run_num * 100) / all_num
+            ret["runRate"] = round(ret["runRate"], 1)
 
         if run_num == 0:
             ret["successRate"] = 0
         else:
             ret["successRate"] = (ret['success_num'] * 100) / run_num
+            ret["successRate"] = round(ret["successRate"], 1)
         return self.response_success(data=ret)
 
 
 class HTestPlanTestCaseViewSet(ModelBaseViewSet):
     serializer_class = HTestPlanTestCaseViewSerializer
     queryset = HTestPlanRelateTestCase.objects.all()
+
+    def update_statistics(self, test_plan_id):
+        """
+    {"id": 1, 'name': "未开始", "type": "info"},
+    {"id": 2, 'name': "阻塞", "type": "warning"},
+    {"id": 3, 'name': "通过", "type": "success"},
+    {"id": 4, 'name': "跳过", "type": "info"},
+    {"id": 5, 'name': "失败", "type": "danger"}
+        """
+        success_num = HTestPlanRelateTestCase.objects.filter(run_status_id=3, h_test_plan_id=test_plan_id).count()
+        failed_num = HTestPlanRelateTestCase.objects.filter(run_status_id=5, h_test_plan_id=test_plan_id).count()
+        skip_num = HTestPlanRelateTestCase.objects.filter(run_status_id=4, h_test_plan_id=test_plan_id).count()
+        block_num = HTestPlanRelateTestCase.objects.filter(run_status_id=2, h_test_plan_id=test_plan_id).count()
+        not_start_num = HTestPlanRelateTestCase.objects.filter(run_status_id=1, h_test_plan_id=test_plan_id).count()
+        HTestPlan.objects.filter(id=test_plan_id).update(success_num=success_num,
+                                                         failed_num=failed_num,
+                                                         skip_num=skip_num,
+                                                         block_num=block_num,
+                                                         not_start_num=not_start_num)
 
     def list(self, request, *args, **kwargs):
         """
@@ -229,4 +251,32 @@ class HTestPlanTestCaseViewSet(ModelBaseViewSet):
         serializer = HTestPlanTestCaseUpdateValidator(instance=test_plan_case, data=params)
         serializer.is_valid(raise_exception=True)  # 规则校验
         serializer.save()  # 把数据保存到数据库
+
+        self.update_statistics(test_plan_case.h_test_plan_id)
+
+        return self.response_success()
+
+    def create(self, request, *args, **kwargs):
+        """
+        post - v1/TestPlan/testcase  创建测试计划和测试用例的关联
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        # 数据创建
+        params = request.data
+
+        serializer = HTestPlanTestCaseCreateValidator(data=params)
+        serializer.is_valid(raise_exception=True)  # 规则校验
+
+        test_plan_id = params.get('test_plan_id')
+        test_case_ids = params.get('test_case_ids')
+        for t_id in test_case_ids:
+            # if HTestPlanRelateTestCase.objects.filter(h_test_plan_id=test_plan_id, h_test_case_id=t_id):
+            #     continue
+            # HTestPlanRelateTestCase.objects.create(h_test_plan_id=test_plan_id, h_test_case_id=t_id)
+            HTestPlanRelateTestCase.objects.get_or_create(h_test_plan_id=test_plan_id, h_test_case_id=t_id)
+
+        # 数据的序列化，返回给前端
         return self.response_success()

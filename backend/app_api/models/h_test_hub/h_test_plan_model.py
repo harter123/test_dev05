@@ -24,6 +24,7 @@ class HTestPlan(models.Model):
     failed_num = models.IntegerField("失败个数", default=0)
     skip_num = models.IntegerField("跳过个数", default=0)
     block_num = models.IntegerField("阻塞个数", default=0)
+    not_start_num = models.IntegerField("未开始个数", default=0)
 
     def __str__(self):
         return self.name

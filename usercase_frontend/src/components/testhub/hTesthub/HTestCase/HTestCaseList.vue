@@ -130,6 +130,17 @@
           </el-table>
         </div>
 
+        <div class="foot-page" style="text-align: right">
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size=query.size
+              layout="total, sizes, prev, pager, next"
+              :total=query.total>
+          </el-pagination>
+        </div>
+
       </el-card>
     </div>
     <HTestModuleDialog v-if="showTestModuleDialogFlag"
@@ -369,16 +380,14 @@ export default {
 
     // 修改每页显示个数
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
       this.query.size = val
-      //this.initModule()
+      this.getTestCase()
     },
 
     // 点给第几页
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
       this.query.page = val
-      //this.initModule()
+      this.getTestCase()
     }
 
   }

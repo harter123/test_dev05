@@ -1,0 +1,14 @@
+内容：完成测试计划
+
+table添加多选框，用element本身的功能就可以了
+
+实现多选非常简单: 手动添加一个el-table-column，设type属性为selection即可；
+默认情况下若内容过多会折行显示，若需要单行显示可以使用show-overflow-tooltip属性，
+它接受一个Boolean，为true时多余的内容会在 hover 时以 tooltip 的形式显示出来。
+
+@selection-change="handleSelectionChange"
+当我们进行了选择操作时候，就会调用这个函数，参数是你选择的列，数组形式
+
+
+如果数据不存在，就创建，存在就直接获取就可以啦
+HTestPlanRelateTestCase.objects.get_or_create(h_test_plan_id=test_plan_id, h_test_case_id=t_id)

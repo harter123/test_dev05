@@ -3,7 +3,7 @@ const statusList = [
     {"id": 2, 'name': "已审核", "type": "success"}
 ]
 
-const testPlanStatusList = [
+const testPlanRunStatusList = [
     {"id": 1, 'name': "未开始", "type": "info"},
     {"id": 2, 'name': "阻塞", "type": "warning"},
     {"id": 3, 'name': "通过", "type": "success"},
@@ -11,6 +11,11 @@ const testPlanStatusList = [
     {"id": 5, 'name': "失败", "type": "danger"}
 ]
 
+const testPlanStatusList = [
+    {"id": 1, 'name': "未开始", "type": "info"},
+    {"id": 2, 'name': "进行中", "type": "warning"},
+    {"id": 3, 'name': "已完成", "type": "success"},
+]
 
 const priorityList = [
     {"id": 1, 'name': "P1", "type": "success"},
@@ -45,12 +50,15 @@ class HTestCaseMap {
             case "testPlanStatus":
                 data = testPlanStatusList
                 break
+            case "testPlanRunStatus":
+                data = testPlanRunStatusList
+                break
+
             default:
                 return {"id": -1, "name": "未知"}
         }
         for (let i = 0; i < data.length; i++) {
             if (itemId == data[i]['id']) {
-                console.log(data[i])
                 return data[i]
             }
         }
@@ -59,6 +67,9 @@ class HTestCaseMap {
 
     getTestPlanStatus(statusId) {
         return this.getItem(statusId, 'testPlanStatus')
+    }
+    getTestPlanRunStatus(statusId) {
+        return this.getItem(statusId, 'testPlanRunStatus')
     }
 
     getStatus(statusId) {
@@ -87,6 +98,10 @@ class HTestCaseMap {
 
     getTestPlanStatusList() {
         return testPlanStatusList
+    }
+
+    getTestPlanRunStatusList(){
+        return testPlanRunStatusList
     }
 }
 

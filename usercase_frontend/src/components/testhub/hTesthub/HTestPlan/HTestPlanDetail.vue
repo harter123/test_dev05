@@ -22,98 +22,88 @@
       <div>
         <a class="class-a" href="javascript:void(0)" style="margin-right: 10px" @click="back">
           <i class="el-icon-back"></i></a>
-        <el-button type="primary" size="mini">规划用例</el-button>
+        <el-button type="primary" size="mini" @click="showPlanningFlag=true">规划用例</el-button>
       </div>
-      <div>
-        状态:
-        <el-tag :type="getStatus(testPlan.status_id).type" size="small">
-          {{ getStatus(testPlan.status_id).name }}
-        </el-tag>
+      <div class="common-flex">
+
+        <el-dropdown trigger="click" @command="handleCommandPlanStatus">
+          <span class="el-dropdown-link" style="cursor: pointer">
+            <span>状态:</span>
+            <el-tag :type="getPlanStatus(testPlan.status_id).type" size="small">
+              {{ getPlanStatus(testPlan.status_id).name }}
+            </el-tag>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item v-for="item in getPlanStatusList()" :key="item.id" :command="item.id">
+              <el-tag :type="item.type" size="small">{{ item.name }}</el-tag>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
       </div>
-      <div>
-        负责人: {{ testPlan.owner_name }}
+      <div class="common-flex">
+        <div>负责人: {{ testPlan.owner_name }}</div>
       </div>
-      <div>
+      <div style="padding-top: 2px">
         <el-popover
             placement="top-start"
-            width="200"
+            width="70"
             trigger="hover">
           <div>
             <div class="common-flex">
-              <div>成功&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.success_num" :stroke-width="18" :text-inside="true"
-                             status="success"></el-progress>
-              </div>
+              <div>成功：&nbsp;{{ testPlan.success_num }}</div>
             </div>
             <div class="common-flex">
-              <div>跳过&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.skip_num" :stroke-width="18" :text-inside="true"></el-progress>
-              </div>
+              <div>跳过：&nbsp;{{ testPlan.skip_num }}</div>
             </div>
             <div class="common-flex">
-              <div>阻塞&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.block_num" :stroke-width="18" :text-inside="true"
-                             status="warning"></el-progress>
-              </div>
+              <div>阻塞：&nbsp;{{ testPlan.block_num }}</div>
             </div>
             <div class="common-flex">
-              <div>失败&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.failed_num" :stroke-width="18" :text-inside="true"
-                             status="exception"></el-progress>
-              </div>
+              <div>失败：&nbsp;{{ testPlan.failed_num }}</div>
             </div>
           </div>
-          <div slot="reference">
-            覆盖率: {{ testPlan.runRate }} %
+          <div slot="reference" class="common-flex">
+            <div>覆盖率:</div>
+            <div style="width: 100px">
+              <el-progress :text-inside="true" :stroke-width="18" :percentage="testPlan.runRate"></el-progress>
+            </div>
+
           </div>
         </el-popover>
 
       </div>
 
-      <div>
+      <div style="padding-top: 2px">
         <el-popover
             placement="top-start"
-            width="200"
+            width="70"
             trigger="hover">
           <div>
             <div class="common-flex">
-              <div>成功&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.success_num" :stroke-width="18" :text-inside="true"
-                             status="success"></el-progress>
-              </div>
+              <div>成功：&nbsp;{{ testPlan.success_num }}</div>
             </div>
             <div class="common-flex">
-              <div>跳过&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.skip_num" :stroke-width="18" :text-inside="true"></el-progress>
-              </div>
+              <div>跳过：&nbsp;{{ testPlan.skip_num }}</div>
             </div>
             <div class="common-flex">
-              <div>阻塞&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.block_num" :stroke-width="18" :text-inside="true"
-                             status="warning"></el-progress>
-              </div>
+              <div>阻塞：&nbsp;{{ testPlan.block_num }}</div>
             </div>
             <div class="common-flex">
-              <div>失败&nbsp;</div>
-              <div class="common-width">
-                <el-progress :percentage="testPlan.failed_num" :stroke-width="18" :text-inside="true"
-                             status="exception"></el-progress>
-              </div>
+              <div>失败：&nbsp;{{ testPlan.failed_num }}</div>
             </div>
           </div>
-          <div slot="reference">
-            通过率: {{ testPlan.successRate }} %
+          <div slot="reference" class="common-flex">
+            <div>通过率:</div>
+            <div style="width: 100px">
+              <el-progress :text-inside="true" :stroke-width="18" :percentage="testPlan.successRate"
+                           status="success"></el-progress>
+
+            </div>
           </div>
         </el-popover>
       </div>
-      <div>
+      <div class="common-flex">
         <a class="class-a" href="javascript:void(0)"><i class="el-icon-pie-chart"></i>测试报告</a>
       </div>
     </div>
@@ -241,6 +231,13 @@
           :test-hub-id="Number(testHubId)">
       </HTestShowCaseForm>
     </el-drawer>
+    <HTestPlanPlanningDialog
+        v-if="showPlanningFlag"
+        @cancel="showPlanningFlag=false"
+        @success="closePlanningDialog"
+        :test-hub-id="Number(testHubId)"
+        :test-plan-id="testPlanId">
+    </HTestPlanPlanningDialog>
   </div>
 </template>
 
@@ -248,11 +245,13 @@
 import TestHubApi from '../../../../request/testHub'
 import HTestCaseMap from "../../../../utils/hTestCase"
 import HTestShowCaseForm from "../HTestCase/HTestShowCaseForm";
+import HTestPlanPlanningDialog from "./HTestPlanPlanningDialog";
 
 export default {
   name: "TestPlanDetail",
   components: {
-    HTestShowCaseForm
+    HTestShowCaseForm,
+    HTestPlanPlanningDialog
   },
   data() {
     return {
@@ -288,6 +287,8 @@ export default {
 
       moduleHeight: 500,
       addCaseDialogFlag: false,
+
+      showPlanningFlag: false,
     }
   },
   created() {
@@ -300,14 +301,19 @@ export default {
     this.getTestPlan()
     this.getTestCase()
 
-    this.moduleHeight = document.body.clientHeight - 100
+    this.moduleHeight = document.body.clientHeight - 140
     document.getElementById('case-menu-module').style.height = this.moduleHeight + 'px'
   },
   methods: {
+    closePlanningDialog() {
+      this.showPlanningFlag = false
+      this.getTestCase()
+    },
     async updateTestPlanCase(rid, data) {
       let resp = await TestHubApi.updateTestPlanTestCase(rid, data)
       if (resp.success == true) {
         this.getTestCase()
+        this.getTestPlan()
       } else {
         this.$message.error(resp.error.message);
       }
@@ -315,6 +321,15 @@ export default {
     handleCommandStatus(command) {
       let params = {"run_status_id": command.run_status_id}
       this.updateTestPlanCase(command.id, params)
+    },
+    async handleCommandPlanStatus(command) {
+      let params = {"status_id": command}
+      let resp = await TestHubApi.updateTestPlan(this.testPlanId, params)
+      if (resp.success == true) {
+        this.getTestPlan()
+      } else {
+        this.$message.error(resp.error.message);
+      }
     },
     back() {
       this.$router.back()
@@ -365,11 +380,19 @@ export default {
       this.getTestCase()
     },
     getStatus(statusID) {
-      return HTestCaseMap.getTestPlanStatus(statusID)
+      return HTestCaseMap.getTestPlanRunStatus(statusID)
     },
     getRunStatusList() {
+      return HTestCaseMap.getTestPlanRunStatusList()
+    },
+
+    getPlanStatus(statusID) {
+      return HTestCaseMap.getTestPlanStatus(statusID)
+    },
+    getPlanStatusList() {
       return HTestCaseMap.getTestPlanStatusList()
     },
+
     getPriority(priorityId) {
       return HTestCaseMap.getPriority(priorityId)
     },

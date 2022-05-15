@@ -106,6 +106,9 @@ class TestHubApi {
         return request.put('/v1/testplan/testcase/' + rid + '/', data)
     }
 
+    createTestPlanTestCase(data) {
+        return request.post('/v1/testplan/testcase/', data)
+    }
 }
 
 export default new TestHubApi()

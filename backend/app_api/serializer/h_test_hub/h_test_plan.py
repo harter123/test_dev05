@@ -15,7 +15,7 @@ class HTestPlanViewSerializer(serializers.ModelSerializer):
         model = HTestPlan
         fields = ['id', 'name', 'h_test_hub_id', 'status_id', 'start_date', 'end_date', "owner_id", 'creator_id',
                   "owner_name", 'create_time', 'creator_name', 'success_num', 'failed_num', 'skip_num',
-                  'block_num']  # 要显示的字段
+                  'block_num', 'not_start_num']  # 要显示的字段
 
 
 # 用来做参数检验，以及数据创建
@@ -136,3 +136,19 @@ class HTestPlanTestCaseUpdateValidator(serializers.Serializer):
         instance.run_status_id = validated_data.get("run_status_id", instance.run_status_id)
         instance.save()
         return instance
+
+
+# 用来做参数检验，以及数据编辑
+class HTestPlanTestCaseCreateValidator(serializers.Serializer):
+    """
+    测试计划和测试用例关联表的验证器
+    """
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
+    test_plan_id = serializers.IntegerField(required=True)
+    test_case_ids = serializers.ListField(required=True, child=serializers.IntegerField())

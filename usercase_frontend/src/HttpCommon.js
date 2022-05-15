@@ -20,7 +20,6 @@ function tellIfIsLogout(data) {
 
 function makeRequest(requestType, url, dataOrParam, responseType, additionalHeader = {}) {
   const header = {}
-  console.log(process.env.NODE_ENV)
   if (process.env.NODE_ENV === 'local') {
     header['Access-Control-Allow-Origin'] = '*'
     header['x-account-email'] = ''
@@ -40,7 +39,6 @@ function makeRequest(requestType, url, dataOrParam, responseType, additionalHead
     maxRedirects: 5
   }
   if (responseType === 'data') {
-    console.log(responseType)
     dataOrParam = Qs.stringify(dataOrParam)
   } else if (responseType === 'blob') {
     config.responseType = 'blob'
@@ -112,7 +110,6 @@ function commonRequest(requestType, url, dataOrParam, responseType, isLoading = 
 
 export default {
   get(url, params, responseType = 'json', isLoading = false, additionalHeader = {}) {
-    console.log('get: ', additionalHeader)
     return commonRequest('get', url, params, responseType, isLoading, additionalHeader)
   },
 
