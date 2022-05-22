@@ -1,0 +1,34 @@
+内容:完成测试报告
+
+自定义dialog标题：
+
+只要存在Slot 这个属性的组件，都可以自定义部分内容，例如dialog可以自定义 title和footer
+方法： slot="footer"  代表自定义了footer的内容
+<span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+  </span>
+  
+ 
+这里面定义的样式是可以影响全局的，所以可以用来修改一些组件的样式
+ <style>
+ #report-dialog-main .el-dialog__body{
+   padding: 5px 20px;
+ }
+</style>
+
+这里面的样式定义仅仅是当前vue文件，所以没法影响组件本身的样式，因为组件的样式都是全局的
+<style scoped>
+.report-title{
+  text-align: left;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+}
+
+</style>
+
+vue实现饼状图
+https://blog.csdn.net/m0_46309087/article/details/122511971
+https://www.freesion.com/article/6357159374/
+需要使用第三方的组件 echart

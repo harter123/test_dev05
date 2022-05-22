@@ -104,7 +104,7 @@
         </el-popover>
       </div>
       <div class="common-flex">
-        <a class="class-a" href="javascript:void(0)"><i class="el-icon-pie-chart"></i>测试报告</a>
+        <a class="class-a" href="javascript:void(0)" @click="showReportFlag=true"><i class="el-icon-pie-chart"></i>测试报告</a>
       </div>
     </div>
     <div style="display: flex;justify-content: space-between;">
@@ -215,7 +215,16 @@
             </el-table-column>
           </el-table>
         </div>
-
+        <div class="foot-page" style="text-align: right">
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :page-sizes="[10, 20, 50, 100]"
+              :page-size=query.size
+              layout="total, sizes, prev, pager, next"
+              :total=query.total>
+          </el-pagination>
+        </div>
       </el-card>
     </div>
 
@@ -238,6 +247,13 @@
         :test-hub-id="Number(testHubId)"
         :test-plan-id="testPlanId">
     </HTestPlanPlanningDialog>
+
+    <HTestPlanReportDialog v-if="showReportFlag"
+                           :test-plan-id="testPlanId"
+                           :test-hub-id="testHubId"
+                           @cancel="showReportFlag=false"
+                           @success="showReportFlag=false">
+    </HTestPlanReportDialog>
   </div>
 </template>
 
@@ -246,12 +262,14 @@ import TestHubApi from '../../../../request/testHub'
 import HTestCaseMap from "../../../../utils/hTestCase"
 import HTestShowCaseForm from "../HTestCase/HTestShowCaseForm";
 import HTestPlanPlanningDialog from "./HTestPlanPlanningDialog";
+import HTestPlanReportDialog from "./HTestPlanReportDialog";
 
 export default {
   name: "TestPlanDetail",
   components: {
     HTestShowCaseForm,
-    HTestPlanPlanningDialog
+    HTestPlanPlanningDialog,
+    HTestPlanReportDialog,
   },
   data() {
     return {
@@ -289,6 +307,7 @@ export default {
       addCaseDialogFlag: false,
 
       showPlanningFlag: false,
+      showReportFlag: false,
     }
   },
   created() {
