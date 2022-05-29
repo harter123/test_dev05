@@ -74,6 +74,10 @@ class TestHubApi {
         return request.get('/v1/testplan/', data)
     }
 
+    getToDoTestPlanList(data){
+        return request.get('v1/todo/testplan/', data)
+    }
+
     getTestPlan(pid) {
         return request.get('/v1/testplan/' + pid + '/')
     }

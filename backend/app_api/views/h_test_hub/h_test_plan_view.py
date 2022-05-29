@@ -280,3 +280,46 @@ class HTestPlanTestCaseViewSet(ModelBaseViewSet):
 
         # 数据的序列化，返回给前端
         return self.response_success()
+
+
+class HToDoTestPlanViewSet(ModelBaseViewSet):
+    serializer_class = HTestPlanTestCaseViewSerializer
+    queryset = HTestPlanRelateTestCase.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        """
+        get - v1/todo/TestPlan/ 获取测试用例列表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        page = request.query_params.get("page", "1")
+        size = request.query_params.get("size", "5")
+        name = request.query_params.get("keyword", "")
+        status_id = request.query_params.get("statusId", 0)
+
+        status_id = int(status_id)
+
+        user = self.get_user(request)
+
+        query = {
+            "owner_id": user.id
+        }
+        if name:
+            query['name__contains'] = name
+        if status_id:
+            query['status_id'] = status_id
+
+        # ** 等于是把字典平铺开来，例如 query = {"a1"：1，”b1“: 2},平铺开来九食 a1=1,b1=2
+        test_plans = HTestPlan.objects.filter(is_delete=False, **query)
+        pg = Pagination()
+        page_data = pg.paginate_queryset(queryset=test_plans, request=request, view=self)
+        ser = HTestPlanViewSerializer(instance=page_data, many=True)
+        data = {
+            "total": len(test_plans),
+            "page": int(page),
+            "size": int(size),
+            "TestPlanList": ser.data
+        }
+        return self.response_success(data=data)

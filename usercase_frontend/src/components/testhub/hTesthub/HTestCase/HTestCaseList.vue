@@ -1,9 +1,7 @@
 <template>
   <div class="case-main">
     <!-- 面包屑 -->
-    <div id="case-menu" style="display: flex;justify-content: space-between;border-bottom: solid 1px #e6e6e6;
-}
-">
+    <div id="case-menu" style="display: flex;justify-content: space-between;border-bottom: solid 1px #e6e6e6;">
       <el-breadcrumb separator-class="el-icon-arrow-right" style="width: 30%">
         <el-breadcrumb-item :to="{ path: '/main/testhub' }">测试库</el-breadcrumb-item>
         <el-breadcrumb-item>{{ testHub.name }}</el-breadcrumb-item>
