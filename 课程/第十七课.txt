@@ -1,0 +1,170 @@
+大纲
+1.线上部署打包
+
+sqlite升级
+https://blog.csdn.net/weixin_50467592/article/details/120273460  
+
+
+在linux上面部署：
+
+pip install uwsgi 安装uwsgi  用例启动django程序的，替代 python  manage.py  runserver
+
+uwsgi的部署：
+uwsgi --http :8000 --chdir 项目的路径 --wsgi-file 项目路径/项目名称/wsgi.py --master --processes 4 --threads 2
+
+部署了这个，就不再需要执行： python manage.py runserver
+
+用uwsgi有很多好处，
+第一个性能好，支持多进程多线程，但是开发版不支持的
+第二个，能够进行性能分析，能够知道请求的统计个数，各种负载均衡，各种的资源使用情况，例如cpu，内存等等
+第三个，日志，web统计页面，都支持的
+是一个比较全面性的执行和分析工具来的
+https://uwsgi-docs-zh.readthedocs.io/zh_CN/latest/
+
+
+uwsgi使用配置文件的启动方式：
+
+配置文件：
+
+
+[uwsgi]
+#http通信方式--直接做web服务器使用,后面是Django程序所在服务器地址
+http=0.0.0.0:8000
+
+#配置当前工作的项目目录
+chdir=/project/test_dev05/backend/
+
+#项目中wsgi.py文件的目录，相对于项目目录
+wsgi-file=backend/wsgi.py
+
+# 进程数
+processes=4
+
+# 线程数
+threads=2
+
+# 开启主进程模式--uwsgi服务器的角色   uwsgi做主进程,关闭该进程其他相关进程也会被杀掉
+master=True
+
+# 存放进程编号的文件
+pidfile=/project/test_dev05/log/uwsgi.pid
+
+# 后台运行,并输出日志，后面是日志文件位置，后台运行时看不见终端所以只能查看日志
+daemonize=/project/test_dev05/log/uwsgi.log
+
+
+uwsgi --ini   uwsgi.conf
+
+ /usr/local/python3/bin/uwsgi --ini /project/test_dev05/uwsgi_conf/uwsgi.ini
+
+
+打包vue： npm run build  完成后可以在目录里面找到一个dist目录，这个就是静态文件
+为什么要打包vue，打包是什么样的操作？
+打包是为了让性能更好，因最终的文件是静态文件，所以效率会很高
+
+
+linux 需要关闭seliunx，否则nignx会报错：
+setenforce 0
+
+修改
+backend/backend/settings.py
+给ALLOW_HOSTS=["*"]   代表后端允许所有的域名访问
+
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server {
+        listen       80;
+        server_name  localhost, 127.0.0.1;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        root  /project/test_dev05/usercase_frontend/dist;
+        index index.html index.htm;
+
+        keepalive_timeout   70;
+
+        gzip on;
+        gzip_min_length 200;
+        gzip_buffers 4 16k;
+        gzip_comp_level 6;
+        gzip_types text/plain application/javascript text/css application/xml text/javascript application/json;
+        gzip_vary on;
+        gzip_disable "MSIE [1-6]\.";
+        gzip_proxied any;
+
+        # 配置django
+        location /api/ {
+            proxy_pass http://127.0.0.1:8000;
+            proxy_pass_request_headers      on;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+
+        # 配置vue
+        location /css/ {
+            alias /project/test_dev05/usercase_frontend/dist/css/;
+            expires 7d;
+        }
+        location /js/ {
+            alias /project/test_dev05/usercase_frontend/dist/js/;
+            expires 7d;
+        }
+        location /fonts/ {
+            alias /project/test_dev05/usercase_frontend/dist/fonts/;
+            expires 7d;
+        }
+        location /img/ {
+            alias /project/test_dev05/usercase_frontend/dist/img/;
+            expires 7d;
+        }
+
+
+        location @tech-support-index {
+            add_header Cache-Control no-cache;
+            expires 10;
+            root /project/test_dev05/usercase_frontend/dist/;
+            try_files /index.html =404;
+        }
+        location / {
+            root /project/test_dev05/usercase_frontend/dist/;
+            autoindex on;
+            try_files $uri @tech-support-index;
+        }
+    }
+
+
+}

@@ -28,6 +28,7 @@ function makeRequest(requestType, url, dataOrParam, responseType, additionalHead
   } else {
     header['Access-Control-Allow-Origin'] = '*'
     header['token'] = sessionStorage.token
+    axios.defaults.baseURL = "http://192.168.137.2:80/api"
   }
 
   Object.keys(additionalHeader).forEach(key => {
